@@ -24,7 +24,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       username, phone, password, email, address, matric) async {
     final CollectionReference ref =
         FirebaseFirestore.instance.collection("user");
-    ref.doc(username).set({
+    ref.doc(matric).set({
       'username': username,
       'phone': phone,
       'password': password,

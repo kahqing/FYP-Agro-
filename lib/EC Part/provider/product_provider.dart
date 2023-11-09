@@ -3,15 +3,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ProductProvider with ChangeNotifier {
+  String matric;
   List<Product> sellerProducts = [];
 
+  ProductProvider({required this.matric}) {
+    // Fetch user's product data from Firebase
+    loadSellerProducts();
+  }
+
+  void updateMatric(String newMatric) {
+    matric = newMatric;
+    loadSellerProducts(); // Reload product data with the new matric
+  }
+
   // Function to load seller's products from Firestore
-  Future<void> loadSellerProducts(String sellerUserId) async {
+  Future<void> loadSellerProducts() async {
     //Query users collection
-    if (sellerUserId != null && sellerUserId.isNotEmpty) {
+    if (matric != null && matric.isNotEmpty) {
       QuerySnapshot sellersQuery = await FirebaseFirestore.instance
-          .collection('users')
-          .where('userId', isEqualTo: sellerUserId)
+          .collection('user')
+          .where('matric', isEqualTo: matric)
           .get();
 
       // Check if any documents were found

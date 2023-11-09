@@ -1,3 +1,4 @@
+import 'package:agro_plus_app/General%20Part/sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -351,8 +352,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     label: "Log In",
                                     textColor: Colors.black,
                                     onPressed: () {
-                                      // Navigator.pushNamed(
-                                      //     context, SignInScreen.routeName);
+                                      Navigator.pushNamed(
+                                          context, SignInScreen.routeName);
                                     },
                                   ),
                                   shape: const RoundedRectangleBorder(

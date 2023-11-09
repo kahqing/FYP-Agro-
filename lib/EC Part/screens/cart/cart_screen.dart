@@ -7,6 +7,9 @@ import 'package:provider/provider.dart';
 
 class CartScreen extends StatefulWidget {
   static String routeName = "/cart_screen";
+  final String matric;
+
+  CartScreen({required this.matric});
 
   @override
   State<CartScreen> createState() => _CartScreenState();
@@ -234,7 +237,7 @@ class _CartScreenState extends State<CartScreen> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => CheckoutScreen(
-                                    userId: cartProvider.userId,
+                                    matric: cartProvider.matric,
                                     cartItem: demoCarts,
                                     totalPrice: total)));
                       },

@@ -1,7 +1,11 @@
+import 'package:agro_plus_app/EC%20Part/provider/cart_provider.dart';
+import 'package:agro_plus_app/EC%20Part/provider/order_provider.dart';
+import 'package:agro_plus_app/EC%20Part/provider/product_provider.dart';
 import 'package:agro_plus_app/General%20Part/home_page.dart';
 import 'package:agro_plus_app/General%20Part/sign_up.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SignInScreen extends StatefulWidget {
   static String routeName = "/sign_in";
@@ -33,6 +37,15 @@ class _SignInScreenState extends State<SignInScreen> {
         String storedPassword = data['password'];
 
         if (storedPassword == password) {
+          // Pass matric to CartProvider
+          Provider.of<CartProvider>(context, listen: false)
+              .updateMatric(matric);
+          // Pass matric to OrderProvider
+          Provider.of<OrderProvider>(context, listen: false)
+              .updateMatric(matric);
+          // Pass matric to ProductProvider
+          Provider.of<ProductProvider>(context, listen: false)
+              .updateMatric(matric);
           // ignore: use_build_context_synchronously
           Navigator.push(
               context,

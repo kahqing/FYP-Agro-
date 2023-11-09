@@ -37,8 +37,8 @@ class FormHandler {
 
         //retrieve userDocument
         final userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .where('userId', isEqualTo: sellerUserId)
+            .collection('user')
+            .where('matric', isEqualTo: sellerUserId)
             .get();
 
         if (userDoc.docs.isNotEmpty) {

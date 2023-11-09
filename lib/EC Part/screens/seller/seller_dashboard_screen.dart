@@ -15,13 +15,13 @@ class SellerDashboard extends StatefulWidget {
 }
 
 class _SellerDashboardState extends State<SellerDashboard> {
-  final ProductProvider productProvider = ProductProvider();
+  late ProductProvider productProvider;
   List<Product> productList = [];
 
   @override
   void initState() {
     super.initState();
-    productProvider.loadSellerProducts(widget.sellerUserId);
+    productProvider.loadSellerProducts();
     productList = productProvider.sellerProducts;
   }
 
@@ -47,7 +47,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
           if (result == true) {
             //re-fetch and update the list of products
             Provider.of<ProductProvider>(context, listen: false)
-                .loadSellerProducts(widget.sellerUserId);
+                .loadSellerProducts();
           }
         },
         child: const Icon(Icons.add),
@@ -58,7 +58,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
   Widget sellerItem(BuildContext context) {
     return Consumer<ProductProvider>(
         builder: (context, productProvider, child) {
-      productProvider.loadSellerProducts(widget.sellerUserId);
+      productProvider.loadSellerProducts();
       productList = productProvider.sellerProducts;
       // Use productProvider to access sellerProducts
       if (productProvider.sellerProducts.isEmpty) {

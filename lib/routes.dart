@@ -1,18 +1,17 @@
+import 'package:agro_plus_app/EC%20Part/screens/cart/cart_screen.dart';
+import 'package:agro_plus_app/EC%20Part/screens/category_listing_screen.dart';
+import 'package:agro_plus_app/EC%20Part/screens/detail/detail_screen.dart';
+import 'package:agro_plus_app/EC%20Part/screens/ec_main_screen/ec_main_screen.dart';
+import 'package:agro_plus_app/EC%20Part/screens/payment/order_confirmation_screen.dart';
+import 'package:agro_plus_app/EC%20Part/screens/seller/seller_dashboard_screen.dart';
+import 'package:agro_plus_app/General%20Part/sign_in.dart';
+import 'package:agro_plus_app/General%20Part/sign_up.dart';
 import 'package:flutter/widgets.dart';
-
-import 'EC Part/screens/cart/cart_screen.dart';
-import 'EC Part/screens/category_listing_screen.dart';
-import 'EC Part/screens/detail/detail_screen.dart';
-import 'EC Part/screens/ec_main_screen/ec_main_screen.dart';
-import 'EC Part/screens/payment/order_confirmation_screen.dart';
-import 'EC Part/screens/seller/seller_dashboard_screen.dart';
-import 'General Part/sign_in.dart';
-import 'General Part/sign_up.dart';
 
 final String username = "";
 final Map<String, WidgetBuilder> routes = {
-  ECMainScreen.routeName: (context) => ECMainScreen(),
-  CartScreen.routeName: (context) => CartScreen(),
+  //ECMainScreen.routeName: (context) => ECMainScreen(),
+  //CartScreen.routeName: (context) => CartScreen(),
   DetailsScreen.routeName: (context) => DetailsScreen(),
   CategoryProductsScreen.routeName: (context) => CategoryProductsScreen(),
   SellerDashboard.routeName: (context) {

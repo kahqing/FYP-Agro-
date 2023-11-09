@@ -1,5 +1,5 @@
-import 'package:agro_plus_app/EC%20Part/models/product.dart';
-import 'package:agro_plus_app/EC%20Part/screens/detail/detail_screen.dart';
+import 'package:agro_plus_app/EC Part/models/product.dart';
+import 'package:agro_plus_app/EC Part/screens/detail/detail_screen.dart';
 import 'package:flutter/material.dart';
 
 class ProductCard extends StatelessWidget {

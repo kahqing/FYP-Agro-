@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 class CheckoutScreen extends StatefulWidget {
   static String routeName = '/checkout';
 
-  final String userId;
+  final String matric;
   final List<Cart> cartItem;
   final double totalPrice;
 
   const CheckoutScreen({
-    required this.userId,
+    required this.matric,
     required this.cartItem,
     required this.totalPrice,
   });
@@ -22,7 +22,13 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  final OrderProvider orderProvider = OrderProvider();
+  late OrderProvider orderProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    orderProvider = OrderProvider(matric: widget.matric);
+  }
 
   String userAddress = '';
   double accAmount = 0;
@@ -31,8 +37,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.userId)
+          .collection('user')
+          .doc(widget.matric)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {

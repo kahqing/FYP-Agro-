@@ -1,3 +1,4 @@
+import 'package:agro_plus_app/EC%20Part/screens/ec_main_screen/ec_main_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -220,8 +221,13 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                     const Color.fromARGB(255, 171, 171, 171)
                                         .withAlpha(20),
                                 onTap: () {
-                                  // Navigator.pushNamed(
-                                  //     context, ECMainScreen.routeName);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ECMainScreen(matric: matric),
+                                    ),
+                                  );
                                 },
                                 child: Container(
                                     padding: const EdgeInsets.all(20),

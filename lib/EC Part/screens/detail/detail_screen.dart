@@ -2,7 +2,7 @@ import 'package:agro_plus_app/EC%20Part/models/cart.dart';
 import 'package:agro_plus_app/EC%20Part/provider/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/Product.dart';
+import 'package:agro_plus_app/EC Part/models/product.dart';
 
 import '../cart/cart_screen.dart';
 
@@ -17,7 +17,7 @@ class DetailsScreen extends StatelessWidget {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 255, 255, 255),
+      backgroundColor: Color.fromARGB(255, 1, 1, 1),
       appBar: AppBar(
         iconTheme: const IconThemeData(
           color: Colors.white, //change your color here

@@ -1,8 +1,10 @@
 import 'package:agro_plus_app/EC%20Part/screens/seller/seller_dashboard_screen.dart';
-import 'package:agro_plus_app/main.dart';
+
 import 'package:flutter/material.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
+  final String matric;
+  const CustomBottomNavigationBar({required this.matric});
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
@@ -45,7 +47,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   Navigator.pushNamed(context, SellerDashboard.routeName,
-                      arguments: userId);
+                      arguments: matric);
                 },
                 child: const Column(
                   children: [

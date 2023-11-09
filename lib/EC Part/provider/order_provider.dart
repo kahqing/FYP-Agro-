@@ -1,23 +1,32 @@
 import 'package:agro_plus_app/EC%20Part/models/cart.dart';
 import 'package:agro_plus_app/EC%20Part/models/order.dart';
 import 'package:agro_plus_app/EC%20Part/provider/cart_provider.dart';
-import 'package:agro_plus_app/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class OrderProvider extends ChangeNotifier {
-  final CartProvider cartProvider = CartProvider(userId: userId);
-
+  String matric;
   List<Order_> orders = [];
   String orderId = '';
+
+  late final CartProvider cartProvider;
+  OrderProvider({required this.matric}) {
+    // Fetch user's order data from Firebase
+    loadOrder();
+  }
+
+  void updateMatric(String newMatric) {
+    matric = newMatric;
+    loadOrder(); // Reload order data with the new matric
+  }
 
   //Function to add new order in Firebase
   Future<void> loadOrder() async {
     //Query orders collection
-    if (userId != null && userId.isNotEmpty) {
+    if (matric != null && matric.isNotEmpty) {
       QuerySnapshot ordersQuery = await FirebaseFirestore.instance
           .collection('orders')
-          .where('userId', isEqualTo: userId)
+          .where('matric', isEqualTo: matric)
           .get();
       // Check if any documents were found
       if (ordersQuery.docs.isNotEmpty) {
@@ -37,7 +46,7 @@ class OrderProvider extends ChangeNotifier {
       // Create an order document in the 'orders' collection
       DocumentReference orderRef =
           await FirebaseFirestore.instance.collection('orders').add({
-        'customerId': userId,
+        'customerId': matric,
         'status': 'Prepared',
         'totalPrice': totalPrice,
         'transactionDate': FieldValue.serverTimestamp(),

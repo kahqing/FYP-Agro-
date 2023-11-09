@@ -8,13 +8,15 @@ import 'package:flutter/material.dart';
 
 class ECMainScreen extends StatelessWidget {
   static String routeName = "/ec_main_screen";
-  // final String username;
-  const ECMainScreen({Key? key});
+  final String matric;
+  const ECMainScreen({required this.matric});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: CustomBottomNavigationBar(),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        matric: matric,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -62,7 +64,12 @@ class ECMainScreen extends StatelessWidget {
               height: 50,
               child: IconButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, CartScreen.routeName);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CartScreen(matric: matric),
+                    ),
+                  );
                 },
                 icon: const Icon(
                   Icons.shopping_cart,

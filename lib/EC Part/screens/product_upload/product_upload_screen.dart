@@ -15,7 +15,8 @@ class ProductUploadScreen extends StatefulWidget {
 }
 
 class _ProductUploadScreenState extends State<ProductUploadScreen> {
-  final formHandler = FormHandler(ProductProvider());
+  late final formHandler =
+      FormHandler(ProductProvider(matric: widget.sellerUserId));
 
   //function/logic to handle the form submission
   void submitForm() async {

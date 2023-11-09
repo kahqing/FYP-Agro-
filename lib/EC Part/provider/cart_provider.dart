@@ -3,11 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class CartProvider with ChangeNotifier {
-  final String userId;
+  String matric;
   List<Cart> cartList = [];
 
-  CartProvider({required this.userId}) {
+  CartProvider({required this.matric}) {
     //fetch user's cart data from firebase
+    loadCartData();
+  }
+
+  void updateMatric(String newMatric) {
+    matric = newMatric;
     loadCartData();
   }
 
@@ -15,7 +20,7 @@ class CartProvider with ChangeNotifier {
     try {
       //create a referenve to user's cart document
       DocumentReference cartDocument =
-          FirebaseFirestore.instance.collection('carts').doc(userId);
+          FirebaseFirestore.instance.collection('carts').doc(matric);
 
       //Get the cart items subcollection
       QuerySnapshot cartItemsSnapshot =
@@ -42,7 +47,7 @@ class CartProvider with ChangeNotifier {
   Future<void> addToCart(Cart itemData) async {
     //Create reference to user cart document
     DocumentReference cartDocument =
-        FirebaseFirestore.instance.collection('carts').doc(userId);
+        FirebaseFirestore.instance.collection('carts').doc(matric);
 
     // add item to cart item subcollection
     await cartDocument.collection('cartItems').add({
@@ -59,7 +64,7 @@ class CartProvider with ChangeNotifier {
   Future<void> deleteCartItem(String itemId) async {
     // Create a reference to the user's cart document
     DocumentReference cartDocument =
-        FirebaseFirestore.instance.collection('carts').doc(userId);
+        FirebaseFirestore.instance.collection('carts').doc(matric);
 
     // Delete the item from the cart items subcollection
     QuerySnapshot querySnapshot = await cartDocument

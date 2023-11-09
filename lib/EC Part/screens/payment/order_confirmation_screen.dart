@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 class OrderConfirmationScreen extends StatelessWidget {
   static String routeName = '/order_confirmation';
-  final OrderProvider orderProvider = OrderProvider();
 
   final String orderId;
 

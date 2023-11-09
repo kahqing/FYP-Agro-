@@ -1,0 +1,242 @@
+import 'package:agro_plus_app/General%20Part/home_page.dart';
+import 'package:agro_plus_app/General%20Part/sign_up.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+
+class SignInScreen extends StatefulWidget {
+  static String routeName = "/sign_in";
+  const SignInScreen({super.key});
+
+  @override
+  State<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends State<SignInScreen> {
+  TextEditingController userController = TextEditingController();
+  TextEditingController passController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  Future<void> userLogin(matric, password) async {
+    CollectionReference usersCollection =
+        FirebaseFirestore.instance.collection('user');
+
+    try {
+      // Query Firestore for the user document based on the username.
+      final DocumentReference documentReference = usersCollection.doc(matric);
+
+      final DocumentSnapshot documentSnapshot = await documentReference.get();
+
+      if (documentSnapshot.exists) {
+        Map<String, dynamic> data =
+            documentSnapshot.data()! as Map<String, dynamic>;
+
+        String storedPassword = data['password'];
+
+        if (storedPassword == password) {
+          // ignore: use_build_context_synchronously
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => HomepageScreen(
+                        matric: matric,
+                      )));
+        } else {
+          const snackBar = SnackBar(
+            content: Text(
+              "Incorrect Username or Password.",
+              style: TextStyle(color: Colors.black),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+            ),
+            backgroundColor: Color.fromARGB(255, 245, 179, 255),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
+      } else {
+        const snackBar = SnackBar(
+          content: Text(
+            "Incorrect Username or Password.",
+            style: TextStyle(color: Colors.black),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+          ),
+          backgroundColor: Color.fromARGB(255, 245, 179, 255),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    } catch (e) {
+      const snackBar = SnackBar(
+        content: Text(
+          "Error occured.",
+          style: TextStyle(color: Colors.black),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+        ),
+        backgroundColor: Color.fromARGB(255, 245, 179, 255),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+          child: Stack(
+        children: [
+          Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                  Color.fromARGB(255, 229, 48, 48),
+                  Color.fromARGB(255, 127, 18, 18)
+                ])),
+            child: Container(
+              margin:
+                  EdgeInsets.only(top: MediaQuery.of(context).size.height / 2),
+              child: Column(
+                children: [
+                  Form(
+                    key: _formKey,
+                    child: Container(
+                      margin: const EdgeInsets.only(
+                          left: 20, right: 20, bottom: 20),
+                      child: TextFormField(
+                        controller: userController,
+                        decoration: InputDecoration(
+                            prefixIcon: Icon(
+                              Icons.person_2_outlined,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                            labelStyle:
+                                TextStyle(color: Colors.white.withOpacity(0.8)),
+                            filled: true,
+                            fillColor: Colors.white.withOpacity(0.2),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                                borderSide: const BorderSide(
+                                    width: 0, style: BorderStyle.none)),
+                            labelText: "Matric Number"),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin:
+                        const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                    child: TextFormField(
+                      controller: passController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.lock_outline,
+                            color: Colors.white.withOpacity(0.7),
+                          ),
+                          labelStyle:
+                              TextStyle(color: Colors.white.withOpacity(0.8)),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.2),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: const BorderSide(
+                                  width: 0, style: BorderStyle.none)),
+                          labelText: "Password"),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "Please enter your password!";
+                        } else {
+                          return null;
+                        }
+                      },
+                    ),
+                  ),
+                  Container(
+                    alignment: Alignment.centerRight,
+                    margin:
+                        const EdgeInsets.only(bottom: 20, left: 20, right: 20),
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: const Text(
+                        "Forgot Password",
+                        style: TextStyle(color: Colors.white, fontSize: 13),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    margin:
+                        const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                    child: SizedBox(
+                      height: 40,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await userLogin(
+                              userController.text, passController.text);
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20))),
+                        child: const Text(
+                          "LOG IN",
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Dont have an account? ",
+                        style: TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const SignUpScreen()));
+                        },
+                        child: const Text("Sign Up",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold)),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+          Container(
+            height: MediaQuery.of(context).size.height / 2.5,
+            width: MediaQuery.of(context).size.width,
+            decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    bottomRight: Radius.circular(20),
+                    bottomLeft: Radius.circular(20))),
+            child: Padding(
+              padding: const EdgeInsets.all(50),
+              child: Image.asset("assets/agrobankLogo.png"),
+            ),
+          )
+        ],
+      )),
+    );
+  }
+}

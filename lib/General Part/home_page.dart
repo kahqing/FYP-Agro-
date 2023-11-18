@@ -1,3 +1,7 @@
+import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/capture_ic.dart';
+import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/face_recognition.dart';
+import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/open_bank_account.dart';
+import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/test_flutter_tesseract_ocr.dart';
 import 'package:agro_plus_app/EC%20Part/screens/ec_main_screen/ec_main_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -120,11 +124,11 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                     const Color.fromARGB(255, 171, 171, 171)
                                         .withAlpha(20),
                                 onTap: () {
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (context) =>
-                                  //             const TestingOCR()));
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const OpenBankAccScreen()));
                                 },
                                 child: Container(
                                     padding: const EdgeInsets.all(20),
@@ -152,11 +156,11 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                     const Color.fromARGB(255, 171, 171, 171)
                                         .withAlpha(20),
                                 onTap: () {
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (context) =>
-                                  //             const SignInScreen()));
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const CaptureICScreen()));
                                 },
                                 child: Container(
                                     padding: const EdgeInsets.all(20),
@@ -189,11 +193,11 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                     const Color.fromARGB(255, 171, 171, 171)
                                         .withAlpha(20),
                                 onTap: () {
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (context) =>
-                                  //             CheckImage(username: username)));
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              FaceCompareScreen(id: matric)));
                                 },
                                 child: Container(
                                     padding: const EdgeInsets.all(20),

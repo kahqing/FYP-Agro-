@@ -32,9 +32,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
       "email": email,
       "address": address,
       "matric": matric,
+      "statusAcc":
+          "Not active", //it is for checking whether open acc alrdy or not
+      "statusIcFront": "Not Captured",
+      "statusIcBack": "Not Captured",
+      "statusFace": "Not Captured",
       "frontIC": "",
       "backIC": "",
-      "ic": ""
+      "ic": "",
+      "balance": "0"
     });
   }
 

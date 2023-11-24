@@ -1,7 +1,6 @@
-import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/capture_ic.dart';
-import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/face_recognition.dart';
-import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/open_bank_account.dart';
-import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/test_flutter_tesseract_ocr.dart';
+import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/ekyc_form_1.dart';
+import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/info_open_acc.dart';
+
 import 'package:agro_plus_app/EC%20Part/screens/ec_main_screen/ec_main_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -124,11 +123,11 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                     const Color.fromARGB(255, 171, 171, 171)
                                         .withAlpha(20),
                                 onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const OpenBankAccScreen()));
+                                  // Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //         builder: (context) =>
+                                  //             CaptureBackICScreen(id: matric)));
                                 },
                                 child: Container(
                                     padding: const EdgeInsets.all(20),
@@ -156,11 +155,11 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                     const Color.fromARGB(255, 171, 171, 171)
                                         .withAlpha(20),
                                 onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const CaptureICScreen()));
+                                  // Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //         builder: (context) =>
+                                  //             EKYCFormScreen()));
                                 },
                                 child: Container(
                                     padding: const EdgeInsets.all(20),
@@ -193,11 +192,11 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                     const Color.fromARGB(255, 171, 171, 171)
                                         .withAlpha(20),
                                 onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              FaceCompareScreen(id: matric)));
+                                  // Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //         builder: (context) =>
+                                  //             FaceCompareScreen(id: matric)));
                                 },
                                 child: Container(
                                     padding: const EdgeInsets.all(20),
@@ -264,13 +263,12 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                     const Color.fromARGB(255, 171, 171, 171)
                                         .withAlpha(20),
                                 onTap: () {
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (context) =>
-                                  //             FaceCompareScreen(
-                                  //               id: matric,
-                                  //             )));
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => EKYCFormScreen(
+                                                id: matric,
+                                              )));
                                 },
                                 child: Container(
                                     padding: const EdgeInsets.all(20),
@@ -345,14 +343,14 @@ class _HomepageScreenState extends State<HomepageScreen> {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 160, 24, 14)),
                   onPressed: () {
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //         builder: (context) =>
-                    //             OpenAccInfoScreen(id: matric)));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                OpenAccInfoScreen(id: matric)));
                   },
                   child: const Text(
-                    "New Agrobank Account",
+                    "Create your own Agrobank account",
                     style: TextStyle(color: Colors.white, fontSize: 15),
                     textAlign: TextAlign.center,
                   ),

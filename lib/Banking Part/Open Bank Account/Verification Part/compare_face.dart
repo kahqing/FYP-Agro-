@@ -1,102 +1,171 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/done_verification.dart';
+import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/failed_verification.dart';
+import 'package:agro_plus_app/Database/db.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
-class CaptureICScreen extends StatefulWidget {
-  const CaptureICScreen({super.key});
+class VerifyFaceScreen extends StatefulWidget {
+  final String id;
+
+  const VerifyFaceScreen({super.key, required this.id});
 
   @override
-  State<CaptureICScreen> createState() => _CaptureICScreenState();
+  State<VerifyFaceScreen> createState() => _VerifyFaceScreenState();
 }
 
-class _CaptureICScreenState extends State<CaptureICScreen> {
-  XFile? imageFront;
-  dynamic? _pickerror;
-  String extracted = "";
+class _VerifyFaceScreenState extends State<VerifyFaceScreen> {
+  String resultMessage = '';
+  File? imageFile1;
+  File? imageFile2;
+  Database db = Database();
 
-  void getICFront(ImageSource source) async {
-    try {
-      final pickedImage = await ImagePicker().pickImage(source: source);
+  @override
+  void initState() {
+    super.initState();
+  }
 
-      if (pickedImage != null) {
-        imageFront = pickedImage;
-
-        recognizedText(pickedImage);
-
-        print(extracted);
-        setState(() {});
-      }
-    } catch (e) {
+  Future getImage2() async {
+    var image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (image != null) {
       setState(() {
-        _pickerror = e;
-        print(e);
+        imageFile2 = File(image.path);
       });
     }
   }
 
-  void recognizedText(XFile image) async {
-    extracted = await FlutterTesseractOcr.extractText(image.path);
+  void _compareFaces(id) async {
+    print('Starting _compareFaces...');
+    final file = await db.retrieveImageFromFirestore(id, 'local_image.jpg');
+
+    if (file == null || imageFile2 == null) {
+      // Handle if images are not selected
+      return;
+    }
+
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('http://192.168.100.11:5000/compare_faces'),
+    );
+
+    // Use the locally saved image for comparison
+    request.files.add(
+      await http.MultipartFile.fromPath('image1', file.path),
+    );
+
+    request.files.add(
+      await http.MultipartFile.fromPath('image2', imageFile2!.path),
+    );
+
+    try {
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        var responseData = await response.stream.bytesToString();
+        var decodedResponse = json.decode(responseData);
+
+        // Check if faces matched
+        bool match = decodedResponse['match'][0];
+
+        setState(() {
+          resultMessage = match ? "Faces Matched" : "Face does not match";
+        });
+
+        if (match) {
+          await db.updateStatusFace(id);
+          // Faces matched, navigate to a success page
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => SuccessVerifyScreen(id: id)),
+          );
+        } else {
+          // Faces did not match, navigate to a failure page
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => FailedVerifiedScreen(id: id)),
+          );
+        }
+      } else {
+        // Print the full error message
+        print('Error: ${response.statusCode} - ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      // Print the full error message
+      print('Error: $e');
+    }
+    print('Finished _compareFaces...');
   }
 
   @override
   Widget build(BuildContext context) {
+    String id = widget.id;
     return Scaffold(
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [
-              Color.fromARGB(255, 229, 48, 48),
-              Color.fromARGB(255, 127, 18, 18)
-            ])),
+        // extendBodyBehindAppBar: true,
+        // appBar: AppBar(
+        //   title: const Text("Card Scanner"),
+        //   elevation: 0,
+        //   backgroundColor: const Color.fromARGB(255, 135, 27, 19),
+        // ),
+        body: Container(
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
+      decoration: const BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: [
+            Color.fromARGB(255, 229, 48, 48),
+            Color.fromARGB(255, 127, 18, 18)
+          ])),
+      child: Center(
         child: SingleChildScrollView(
           child: Container(
             margin: const EdgeInsets.all(20),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   margin: const EdgeInsets.all(15),
                   child: const Text(
-                    "Please capture the front of IC.",
+                    "Please capture your face.",
                     style: TextStyle(
                         color: Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500),
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
                 ),
-                if (imageFront == null)
+                if (imageFile2 == null)
                   Container(
                     width: 300,
                     height: 300,
-                    color: const Color.fromARGB(255, 255, 255, 255),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: const Color.fromARGB(255, 251, 251, 251),
+                    ),
                   ),
-                if (imageFront != null)
-                  Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Image.file(File(imageFront!.path))),
+                if (imageFile2 != null) Image.file(File(imageFile2!.path)),
                 Visibility(
-                  visible: imageFront == null,
+                  visible: imageFile2 == null,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 5),
-                          padding: const EdgeInsets.only(top: 10),
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 20),
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              primary: Color.fromARGB(255, 255, 255, 255),
+                              backgroundColor:
+                                  const Color.fromARGB(255, 255, 255, 255),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8.0)),
                             ),
                             onPressed: () {
-                              getICFront(ImageSource.camera);
+                              getImage2();
                             },
                             child: Container(
                               margin: const EdgeInsets.symmetric(
@@ -104,12 +173,10 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
                               child: const Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Center(
-                                    child: Icon(
-                                      Icons.camera_alt,
-                                      size: 30,
-                                      color: Color.fromARGB(255, 0, 0, 0),
-                                    ),
+                                  Icon(
+                                    Icons.camera_alt,
+                                    size: 30,
+                                    color: Color.fromARGB(255, 0, 0, 0),
                                   ),
                                   Text(
                                     "Camera",
@@ -125,7 +192,7 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
                   ),
                 ),
                 Visibility(
-                  visible: imageFront != null,
+                  visible: imageFile2 != null,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -140,7 +207,7 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
                                   borderRadius: BorderRadius.circular(8.0)),
                             ),
                             onPressed: () {
-                              getICFront(ImageSource.camera);
+                              getImage2();
                             },
                             child: Container(
                                 margin: const EdgeInsets.symmetric(
@@ -163,41 +230,7 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
                                   borderRadius: BorderRadius.circular(8.0)),
                             ),
                             onPressed: () async {
-                              if (extracted
-                                  .toLowerCase()
-                                  .contains("Malaysia")) {
-                                const snackBar = SnackBar(
-                                  content: Text(
-                                    "Valid Card!!!",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(15),
-                                        topRight: Radius.circular(15)),
-                                  ),
-                                  backgroundColor:
-                                      Color.fromARGB(255, 186, 235, 102),
-                                );
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(snackBar);
-                              } else {
-                                const snackBar = SnackBar(
-                                  content: Text(
-                                    "Noooo invalid Card!!!",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(15),
-                                        topRight: Radius.circular(15)),
-                                  ),
-                                  backgroundColor:
-                                      Color.fromARGB(255, 186, 235, 102),
-                                );
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(snackBar);
-                              }
+                              _compareFaces(id);
                             },
                             child: Container(
                                 margin: const EdgeInsets.symmetric(
@@ -212,15 +245,14 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 20),
                 Container(
-                  child: Text(extracted.toString()),
+                  child: Text(resultMessage),
                 )
               ],
             ),
           ),
         ),
       ),
-    );
+    ));
   }
 }

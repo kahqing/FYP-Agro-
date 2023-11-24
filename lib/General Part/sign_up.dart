@@ -47,11 +47,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       "frontIC": "",
       "backIC": "",
       "ic": "",
-<<<<<<< Updated upstream
-      "balance": "0"
-=======
+      "balance": "0",
       "fcmToken": fcmToken,
->>>>>>> Stashed changes
     });
     //get FCM token for the device
   }

@@ -1,15 +1,9 @@
-<<<<<<< Updated upstream
-import 'package:agro_plus_app/EC%20Part/screens/category_listing_screen.dart';
-=======
-import 'package:agro_plus_app/EC%20Part/screens/auction/auction_details_screen.dart';
 import 'package:agro_plus_app/EC%20Part/screens/auction/auction_history.dart';
+import 'package:agro_plus_app/EC%20Part/screens/ec_main_screen/ec_main_screen.dart';
 import 'package:agro_plus_app/EC%20Part/screens/notification/notification_screen.dart';
 import 'package:agro_plus_app/EC%20Part/screens/product_listing/auction_listing.dart';
-import 'package:agro_plus_app/EC%20Part/screens/cart/cart_screen.dart';
 import 'package:agro_plus_app/EC%20Part/screens/product_listing/category_listing_screen.dart';
->>>>>>> Stashed changes
 import 'package:agro_plus_app/EC%20Part/screens/detail/detail_screen.dart';
-import 'package:agro_plus_app/EC%20Part/screens/payment/order_confirmation_screen.dart';
 import 'package:agro_plus_app/EC%20Part/screens/product_listing/buy_now_listing.dart';
 import 'package:agro_plus_app/EC%20Part/screens/seller/seller_dashboard_screen.dart';
 import 'package:agro_plus_app/General%20Part/sign_in.dart';

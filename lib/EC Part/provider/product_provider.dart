@@ -16,7 +16,6 @@ class ProductProvider with ChangeNotifier {
     loadSellerProducts(); // Reload product data with the new matric
   }
 
-  // Function to load seller's products from Firestore
   Future<void> loadSellerProducts() async {
     //Query users collection
     if (matric != null && matric.isNotEmpty) {
@@ -28,15 +27,15 @@ class ProductProvider with ChangeNotifier {
       // Check if any documents were found
       if (sellersQuery.docs.isNotEmpty) {
         // Get the first document in the query (there should be only one)
-        DocumentSnapshot userDoc = sellersQuery.docs.first;
+        //DocumentSnapshot userDoc = sellersQuery.docs.first;
 
         // Now, you can create a reference to the user's document
-        DocumentReference sellerRef = userDoc.reference;
+        //DocumentReference sellerRef = userDoc.reference;
 
         //query seller products (sorted using sellerRef)
         QuerySnapshot productsQuery = await FirebaseFirestore.instance
             .collection('products')
-            .where('sellerRef', isEqualTo: sellerRef)
+            .where('sellerUserId', isEqualTo: matric)
             .get();
 
         sellerProducts = productsQuery.docs.map((doc) {
@@ -61,8 +60,28 @@ class ProductProvider with ChangeNotifier {
       final CollectionReference products =
           FirebaseFirestore.instance.collection('products');
 
-      final DocumentReference documentReference = await products.add(formData);
-      print('Product added with Id: ${documentReference.id}');
+      final DocumentReference productDocReference =
+          await products.add(formData);
+      print('Product added with Id: ${productDocReference.id}');
+
+      if (!formData['isFixedPrice']) {
+        final CollectionReference auctions =
+            FirebaseFirestore.instance.collection('auctions');
+
+        final Map<String, dynamic> auctionData = {
+          'productId': productDocReference.id,
+          'sellerId': formData['sellerUserId'],
+          'highestBid': formData['price'], // Set initial highest bid
+          'endTime': formData['endTime'],
+          'startPrice': formData['price'],
+          'status': "Start",
+        };
+
+        final DocumentReference auctionDocumentReference =
+            await auctions.add(auctionData);
+
+        print('Auction added with Id: ${auctionDocumentReference.id}');
+      }
       // Notify listeners when a product is added.
       notifyListeners();
       return true;

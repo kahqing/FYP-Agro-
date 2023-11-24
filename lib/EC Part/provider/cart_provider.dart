@@ -44,20 +44,31 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  Future<void> addToCart(Cart itemData) async {
+  Future<bool> addToCart(Cart itemData) async {
     //Create reference to user cart document
     DocumentReference cartDocument =
         FirebaseFirestore.instance.collection('carts').doc(matric);
 
-    // add item to cart item subcollection
-    await cartDocument.collection('cartItems').add({
-      'productId': itemData.productId,
-      'productName': itemData.productName,
-      'price': itemData.price,
-      'image': itemData.image,
-      'numOfItem': itemData.numOfItem,
-    });
-    notifyListeners();
+    // Check if the product is already in the carts collection
+    QuerySnapshot cartItemsSnapshot = await cartDocument
+        .collection('cartItems')
+        .where('productId', isEqualTo: itemData.productId)
+        .get();
+
+    if (cartItemsSnapshot.docs.isEmpty) {
+      // Product is not in the cart, add add item to cart item subcollection
+      await cartDocument.collection('cartItems').add({
+        'productId': itemData.productId,
+        'productName': itemData.productName,
+        'price': itemData.price,
+        'image': itemData.image,
+        'numOfItem': itemData.numOfItem,
+      });
+      notifyListeners();
+      return true;
+    } else {
+      return false;
+    }
   }
 
   // Delete an item from the user's cart in Firestore
@@ -71,12 +82,6 @@ class CartProvider with ChangeNotifier {
         .collection('cartItems')
         .where('productId', isEqualTo: itemId)
         .get();
-    // final querySnapshot = await FirebaseFirestore.instance
-    //     .collection('users')
-    //     .doc(userId)
-    //     .collection('cart1')
-    //     .where('productId', isEqualTo: itemId)
-    //     .get();
 
     if (querySnapshot.docs.isNotEmpty) {
       final document = querySnapshot.docs.first;

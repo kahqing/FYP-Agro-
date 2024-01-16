@@ -36,11 +36,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
           "Not active", //it is for checking whether open acc alrdy or not
       "statusIcFront": "Not Captured",
       "statusIcBack": "Not Captured",
-      "statusFace": "Not Captured",
+      "statusStep1": "Not done",
       "frontIC": "",
       "backIC": "",
       "ic": "",
-      "balance": "0"
+      "balance": 0,
+      "tabungAmount": "0"
     });
   }
 
@@ -59,6 +60,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        iconTheme: const IconThemeData(
+          color: Color.fromARGB(255, 255, 255, 255), //change your color here
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text("Sign Up",

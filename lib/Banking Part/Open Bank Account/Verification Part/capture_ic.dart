@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/capture_back_ic.dart';
+import 'package:agro_plus_app/Banking%20Part/messages.dart';
 import 'package:agro_plus_app/Database/db.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -19,14 +20,56 @@ class CaptureICScreen extends StatefulWidget {
 
 class _CaptureICScreenState extends State<CaptureICScreen> {
   Database db = Database();
+  StatusMessage msg = StatusMessage();
   String scannedText = "";
+  String scannedName = "";
   String scannedICNumFront = "";
   String scannedposcode = "";
-  String name = "";
+  String district = "";
+  String username = "";
   List<String> states = [];
   String imageUrl = '';
   XFile? imageFile;
   RegExp icPattern = RegExp(r'\b\d{6}-\d{2}-\d{4}\b');
+  // RegExp posPattern = RegExp(r'\b\d{5}\b');
+  RegExp namePattern = RegExp(r'\b(?:([A-Z][a-z]+)\s+)+\b');
+
+  // Future<bool> compareAddress(id) async {
+  //   final address = await db.getAddress(id);
+
+  //   final List<String> scannedWords =
+  //       scannedText.toLowerCase().split(RegExp(r'\s+'));
+  //   final List<String> addressWords =
+  //       address.toLowerCase().split(RegExp(r'\s+'));
+
+  //   for (String word in scannedWords) {
+  //     if (!addressWords.contains(word)) {
+  //       return false;
+  //     }
+  //   }
+
+  //   return true;
+  // }
+
+  Future<bool> compareAddress(
+      String userEnteredAddress, String scannedText) async {
+    // Convert both addresses to lowercase for case-insensitive comparison
+    String userAddressLower = userEnteredAddress.toLowerCase();
+    String scannedAddressLower = scannedText.toLowerCase();
+
+    // Split the addresses into words
+    List<String> userWords = userAddressLower.split(RegExp(r'\s+'));
+    List<String> scannedWords = scannedAddressLower.split(RegExp(r'\s+'));
+
+    // Check if all words in userEnteredAddress are present in scannedText
+    for (String word in userWords) {
+      if (!scannedWords.contains(word)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 
   Future<String> uploadImageToStorage(File imageFile, id) async {
     try {
@@ -43,13 +86,15 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
     }
   }
 
-  Future updateFrontImage(id, frontIC, ic) async {
+  Future updateFrontImage(id, name, frontIC, addressLast, ic) async {
     final DocumentReference documentReference =
         FirebaseFirestore.instance.collection('user').doc(id);
 
     Map<String, dynamic> data = <String, dynamic>{
       'frontIC': frontIC,
       'ic': ic,
+      'name': name,
+      'addressLat': addressLast,
       'statusFront': "Captured",
     };
 
@@ -114,7 +159,7 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
                                 borderRadius: BorderRadius.circular(8.0)),
                           ),
                           onPressed: () {
-                            getImage(ImageSource.gallery);
+                            getImage(ImageSource.camera);
                           },
                           child: Container(
                             margin: const EdgeInsets.symmetric(
@@ -157,7 +202,7 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
                                 borderRadius: BorderRadius.circular(8.0)),
                           ),
                           onPressed: () {
-                            getImage(ImageSource.gallery);
+                            getImage(ImageSource.camera);
                           },
                           child: Container(
                               margin: const EdgeInsets.symmetric(
@@ -191,34 +236,22 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
                                 scannedText
                                     .toLowerCase()
                                     .contains("kadpengenalan")) {
+                              String addressLast =
+                                  "$scannedposcode ${states.join(", ")}";
                               imageUrl = await uploadImageToStorage(
                                   File(imageFile!.path), id);
 
-                              await updateFrontImage(
-                                  id, imageUrl, scannedICNumFront);
+                              await updateFrontImage(id, username, imageUrl,
+                                  addressLast, scannedICNumFront);
+
+                              msg.showSuccessMessage("Valid IC!");
 
                               // ignore: use_build_context_synchronously
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                   context,
                                   CupertinoPageRoute(
                                       builder: (context) =>
                                           CaptureBackICScreen(id: id)));
-
-                              // const snackBar = SnackBar(
-                              //   content: Text(
-                              //     "Valid card. GOODDDDDDD!!!!!",
-                              //     style: TextStyle(color: Colors.black),
-                              //   ),
-                              //   shape: RoundedRectangleBorder(
-                              //     borderRadius: BorderRadius.only(
-                              //         topLeft: Radius.circular(15),
-                              //         topRight: Radius.circular(15)),
-                              //   ),
-                              //   backgroundColor:
-                              //       Color.fromARGB(255, 245, 179, 255),
-                              // );
-                              // ScaffoldMessenger.of(context)
-                              //     .showSnackBar(snackBar);
                             } else {
                               const snackBar = SnackBar(
                                 content: Text(
@@ -250,28 +283,28 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
-              Column(
-                children: [
-                  Container(
-                    child: Text(
-                      "full text:" +
-                          scannedText +
-                          "\nic:" +
-                          scannedICNumFront +
-                          "\nposcode:" +
-                          scannedposcode +
-                          "\nstate:" +
-                          states.join(", ") +
-                          "\nname:" +
-                          name,
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                  ),
-                ],
-              )
+              // const SizedBox(
+              //   height: 20,
+              // ),
+              // Column(
+              //   children: [
+              //     Container(
+              //       child: Text(
+              //         "full text:" +
+              //             scannedText +
+              //             "\nic:" +
+              //             scannedICNumFront +
+              //             "\nposcode:" +
+              //             scannedposcode +
+              //             "\nstate:" +
+              //             states.join(", ") +
+              //             "\nusername: $username" +
+              //             "district: $district",
+              //         style: const TextStyle(fontSize: 20),
+              //       ),
+              //     ),
+              //   ],
+              // )
             ],
           ),
         ),
@@ -307,58 +340,114 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
     for (TextBlock block in recognisedText.blocks) {
       for (TextLine line in block.lines) {
         for (TextElement word in line.elements) {
-          scannedText = scannedText + word.text + "";
+          scannedText = scannedText + word.text + " ";
         }
         scannedText = scannedText + "\n";
       }
     }
+
     print("Finish Scanning....");
+
     Match? icNum = icPattern.firstMatch(scannedText);
     if (icNum != null) {
       String icNumber = icNum.group(0)!;
       scannedICNumFront = icNumber; // This will print the matched IC number
+
+      // Testing for finding the username
+      int icPosition = scannedText.indexOf(icNumber);
+
+      if (icPosition != -1) {
+        // Extract the text after the IC number
+        String textAfterIC =
+            scannedText.substring(icPosition + icNumber.length).trim();
+
+        // Now, you can further process textAfterIC to find the user name
+        List<String> lines = textAfterIC.split('\n');
+
+        // Iterate through the lines to find a valid username
+        String userName = "";
+        for (int i = 0; i < lines.length; i++) {
+          userName = lines[i].trim();
+          // Check if the user name has at least two parts
+          List<String> nameParts = userName.split(' ');
+          if (nameParts.length >= 3) {
+            setState(() {
+              username = userName;
+            });
+
+            print("User Name: $userName");
+            break; // Exit the loop if a valid username is found
+          }
+        }
+
+        if (userName.isEmpty || userName.split(' ').length < 3) {
+          print("Invalid username format");
+        }
+
+        // Extracting the address and postcode
+        // Extracting the address, postcode, and district
+
+        RegExp addressPattern = RegExp(r'\b\d{5}\b\s*(\S.*)');
+        Match? posMatch = addressPattern.firstMatch(textAfterIC);
+
+        if (posMatch != null) {
+          String poscode = posMatch.group(0)!; // Group 1 contains the postcode
+          scannedposcode = poscode;
+
+          // Extracting the state
+          String statePattern =
+              r'\b(?:SABAH|PAHANG|PENANG|SELANGOR|JOHOR|PERAK|KEDAH|PERLIS|TERENGGANU|KELANTAN|NEGERI SEMBILAN|MELAKA|WILAYAH PERSEKUTUAN)\b';
+          Iterable<Match> stateMatches =
+              RegExp(statePattern, caseSensitive: false)
+                  .allMatches(textAfterIC);
+          List<String> matchedStates =
+              stateMatches.map((match) => match.group(0)!).toList();
+          states = matchedStates;
+        }
+      }
     } else {
       scannedICNumFront = "";
     }
 
     // Define a regular expression pattern for extracting postcode
 
-    // Match? posMatch = posPattern.firstMatch(scannedText);
-    // if (posMatch != null) {
-    //   String poscode = posMatch.group(0)!;
-    //   scannedposcode = poscode; // This will print the matched IC number
-    // } else {
-    //   scannedposcode = "";
+    //   Match? posMatch = posPattern.firstMatch(scannedText);
+    //   if (posMatch != null) {
+    //     String poscode = posMatch.group(0)!;
+    //     scannedposcode = poscode; // This will print the matched IC number
+    //   } else {
+    //     scannedposcode = "";
+    //   }
+
+    //   List<String> knownStates = [
+    //     "SABAH",
+    //     "PAHANG",
+    //     "PENANG",
+    //     "SELANGOR",
+    //     "JOHOR",
+    //     "PERAK",
+    //     "KEDAH",
+    //     "PERLIS",
+    //     "TERENGGANU",
+    //     "KELANTAN",
+    //     "NEGERI SEMBILAN",
+    //     "MELAKA"
+    //   ];
+
+    //   // Define a regular expression pattern for extracting state
+    //   String statePattern = r'\b(?:' + knownStates.join('|') + r')\b';
+    //   Iterable<Match> stateMatches =
+    //       RegExp(statePattern, caseSensitive: false).allMatches(scannedText);
+    //   List<String> matchedStates =
+    //       stateMatches.map((match) => match.group(0)!).toList();
+    //   states = matchedStates;
+
+    //   setState(() {});
     // }
 
-    // List<String> knownStates = [
-    //   "SABAH",
-    //   "PAHANG",
-    //   "PENANG",
-    //   "SELANGOR",
-    //   "JOHOR",
-    //   "PERAK",
-    //   "KEDAH",
-    //   "PERLIS",
-    //   "TERENGGANU",
-    //   "KELANTAN",
-    //   "NEGERI SEMBILAN",
-    //   "MELAKA"
-    // ];
-
-    // // Define a regular expression pattern for extracting state
-    // String statePattern = r'\b(?:' + knownStates.join('|') + r')\b';
-    // Iterable<Match> stateMatches =
-    //     RegExp(statePattern, caseSensitive: false).allMatches(scannedText);
-    // List<String> matchedStates =
-    //     stateMatches.map((match) => match.group(0)!).toList();
-    // states = matchedStates;
-
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    super.initState();
+    @override
+    void initState() {
+      super.initState();
+    }
   }
 }

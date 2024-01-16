@@ -103,7 +103,7 @@ class _CaptureICInfoScreenState extends State<CaptureICInfoScreen> {
                             backgroundColor:
                                 const Color.fromARGB(255, 160, 24, 14)),
                         onPressed: () {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                               context,
                               CupertinoPageRoute(
                                   builder: (context) =>

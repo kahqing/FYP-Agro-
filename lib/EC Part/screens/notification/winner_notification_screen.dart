@@ -4,6 +4,7 @@ import 'package:agro_plus_app/EC%20Part/models/cartItem.dart';
 import 'package:agro_plus_app/EC%20Part/provider/cart_provider.dart';
 import 'package:agro_plus_app/EC%20Part/screens/cart/cart_screen.dart';
 import 'package:agro_plus_app/General%20Part/home_page.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,12 +22,14 @@ class _WinnerNotificationScreenState extends State<WinnerNotificationScreen> {
   Map<String, dynamic> messageData = {};
   late String winnerId;
   late ConfettiController _controller;
+  AudioPlayer player = AudioPlayer();
 
   @override
   void initState() {
     super.initState();
-    _controller = ConfettiController(duration: const Duration(seconds: 5));
+    _controller = ConfettiController(duration: const Duration(seconds: 3));
     _controller.play();
+    player.play(AssetSource('congratSound.mp3'));
   }
 
   @override

@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/congrat.dart';
 import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/game_homepage.dart';
 import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Payment%20Part/payment_info.dart';
 import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/ekyc_form_1.dart';
@@ -388,11 +388,10 @@ class _HomepageScreenState extends State<HomepageScreen> {
                         splashColor: const Color.fromARGB(255, 171, 171, 171)
                             .withAlpha(20),
                         onTap: () {
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (context) =>
-                          //             CaptureBackICScreen(id: matric)));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CongratulationPage()));
                         },
                         child:
                             // Container(

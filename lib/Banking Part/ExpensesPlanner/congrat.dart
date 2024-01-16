@@ -9,7 +9,7 @@ class CongratulationPage extends StatefulWidget {
 
 class _CongratulationPageState extends State<CongratulationPage> {
   late ConfettiController _controller;
-  AudioPlayer player = new AudioPlayer();
+  AudioPlayer player = AudioPlayer();
 
   @override
   void initState() {

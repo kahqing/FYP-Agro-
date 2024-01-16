@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 
@@ -8,12 +9,14 @@ class CongratulationPage extends StatefulWidget {
 
 class _CongratulationPageState extends State<CongratulationPage> {
   late ConfettiController _controller;
+  AudioPlayer player = new AudioPlayer();
 
   @override
   void initState() {
     super.initState();
-    _controller = ConfettiController(duration: const Duration(seconds: 5));
+    _controller = ConfettiController(duration: const Duration(seconds: 3));
     _controller.play();
+    player.play(AssetSource('congratSound.mp3'));
   }
 
   @override

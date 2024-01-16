@@ -96,6 +96,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
   @override
   Widget build(BuildContext context) {
     String matric = widget.matric;
+    _checkAndNavigate(context);
 
     return Scaffold(
       body: SingleChildScrollView(

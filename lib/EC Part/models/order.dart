@@ -2,19 +2,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Order_ {
   final String orderId;
-  final String customerId;
+  final String buyerId;
+  final String sellerId;
   final String status;
+
   final double totalPrice;
   final DateTime transactionDate;
-  final List<OrderItem> orderItems;
+  String sellerName;
+  List<OrderItem> orderItems;
 
   Order_({
-    //required this.numOfItems,
     required this.orderId,
-    required this.customerId,
-    required this.status,
+    required this.buyerId,
+    required this.sellerId,
     required this.totalPrice,
+    required this.status,
     required this.transactionDate,
+    required this.sellerName,
     required this.orderItems,
   });
 
@@ -24,66 +28,75 @@ class Order_ {
 
     final List<dynamic> items = data['orderItems'] ?? [];
     final List<OrderItem> orderItems = items.map((item) {
-      return OrderItem(
-        productId: item['productId'],
-        productName: item['productName'],
-        price: item['price'],
-        numOfItem: item['numOfItems'],
-      );
+      return OrderItem.fromSnapshot(item);
     }).toList();
-    //populate order fields from the data
+
     return Order_(
-      // productName: data['productName'],
-      // productId: data['productId'],
-      // numOfItems: data['numOfItems'],
       orderId: doc.id,
-      customerId: data['customerId'],
-      status: data['status'],
-      totalPrice: data['totalPrice'],
+      buyerId: data['buyerId'],
+      sellerId: data['sellerId'],
+      sellerName: data['sellerName'] ?? '',
+      totalPrice: data['totalPrice'].toDouble(),
       transactionDate: date.toDate(),
+      status: data['status'],
       orderItems: orderItems,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      // 'productName': productName,
-      // 'productId': productId,
-      // 'numOfItems': numOfItems,
       'orderId': orderId,
-      'customerId': customerId,
-      'status': status,
+      'sellerId': sellerId,
+      'buyerId': buyerId,
       'totalPrice': totalPrice,
       'transactionDate': transactionDate,
+      'status': status,
       'orderItems': orderItems.map((item) => item.toMap()).toList(),
     };
   }
 }
 
 class OrderItem {
+  final String orderId;
   final String productId;
   final String productName;
   final double price;
-  final int numOfItem;
+  final int numOfItems;
+
+  String image;
 
   OrderItem({
+    required this.orderId,
     required this.productId,
     required this.productName,
     required this.price,
-    required this.numOfItem,
+    required this.numOfItems,
+    required this.image,
   });
+
+  factory OrderItem.fromSnapshot(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+
+    final String orderId = doc.reference.parent!.id;
+
+    return OrderItem(
+      orderId: orderId,
+      productId: data['productId'],
+      productName: data['productName'],
+      price: data['price'].toDouble(),
+      numOfItems: data['numOfItem'],
+      image: data['image'] ?? '',
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
+      'orderId': orderId,
       'productId': productId,
       'productName': productName,
       'price': price,
-      'numOfItem': numOfItem,
+      'numOfItems': numOfItems,
+      'image': image,
     };
   }
 }
-
-//to filter the order based on the isDelivered status
-// List<Order> filterOrders(List<Order> orders, String isDelivered) {
-//   return orders.where((order) => order.status == isDelivered).toList();
-// }

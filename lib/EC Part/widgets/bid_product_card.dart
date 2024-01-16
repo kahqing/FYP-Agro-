@@ -1,20 +1,21 @@
 import 'package:agro_plus_app/EC Part/models/product.dart';
 import 'package:agro_plus_app/EC%20Part/screens/auction/auction_details_screen.dart';
+import 'package:agro_plus_app/config.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class BidProductCard extends StatelessWidget {
-  const BidProductCard({
+  BidProductCard({
     Key? key,
     this.width = 175, // Increase the width value to your desired size
     this.aspectRatio = 0.9, // Adjust the aspect ratio as needed
     required this.bidProduct,
-    //required this.highestBid,
   }) : super(key: key);
 
   final double width, aspectRatio;
   final Product bidProduct;
-  //final double highestBid;
+  String apiUrl = AppConfig.apiHostname;
 
 //function to retrieve auction data
   Future<DocumentSnapshot> fetchAuctionData() async {
@@ -54,7 +55,22 @@ class BidProductCard extends StatelessWidget {
             child: SizedBox(
               width: width,
               child: GestureDetector(
-                onTap: () {
+                onTap: () async {
+                  final response = await http.post(
+                    Uri.parse('${AppConfig.apiHostname}incrementClicks'),
+                    body: {
+                      'productId': bidProduct.id
+                    }, // Pass the product ID or any necessary data
+                  );
+
+                  if (response.statusCode == 200) {
+                    // Successfully incremented click counter on the backend
+                    print('Successfully increment click counter');
+                  } else {
+                    // Handle error
+                    print('Failed to increment click counter on the backend.');
+                  }
+                  // ignore: use_build_context_synchronously
                   Navigator.push(
                     context,
                     MaterialPageRoute(

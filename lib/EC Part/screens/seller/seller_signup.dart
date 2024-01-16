@@ -1,18 +1,21 @@
-import 'package:agro_plus_app/General%20Part/sign_in.dart';
+import 'dart:convert';
+import 'package:agro_plus_app/EC%20Part/screens/seller/seller_signin.dart';
+import 'package:agro_plus_app/config.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class SignUpScreen extends StatefulWidget {
-  static String routeName = "/sign_up";
-  const SignUpScreen({super.key});
+class SellerSignUpScreen extends StatefulWidget {
+  static String routeName = "/seller_sign_up";
+  const SellerSignUpScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  State<SellerSignUpScreen> createState() => _SellerSignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
-  TextEditingController userController = TextEditingController();
+class _SellerSignUpScreenState extends State<SellerSignUpScreen> {
+  TextEditingController sellerNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
@@ -21,46 +24,108 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController matricController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String password = "";
+  String sellerId = "";
+  bool hasSellerId = false;
 
-  Future<void> userRegister(
-      username, phone, password, email, address, matric) async {
+  Future<void> sellerRegister(
+      sellerName, phone, password, email, address, matric) async {
     final firebaseMessaging = FirebaseMessaging.instance;
     await FirebaseMessaging.instance.requestPermission();
     final fcmToken = await firebaseMessaging.getToken();
     print('FCM Token: $fcmToken');
 
-    final CollectionReference ref =
-        FirebaseFirestore.instance.collection("user");
+    await generateSellerId(matric);
 
-    ref.doc(matric).set({
-      'username': username,
-      'phone': phone,
-      'password': password,
-      "email": email,
-      "address": address,
-      "matric": matric,
-      "statusAcc":
-          "Not active", //it is for checking whether open acc alrdy or not
-      "statusIcFront": "Not Captured",
-      "statusIcBack": "Not Captured",
-      "statusFace": "Not Captured",
-      "frontIC": "",
-      "backIC": "",
-      "ic": "",
-      "balance": 0.0,
-      "fcmToken": fcmToken,
-    });
-    //get FCM token for the device
+    final CollectionReference sellerRef =
+        FirebaseFirestore.instance.collection("seller");
+
+    if (sellerId.isNotEmpty) {
+      sellerRef.doc(sellerId).set({
+        "sellerId": sellerId,
+        'sellerName': sellerName,
+        'phone': phone,
+        'password': password,
+        "email": email,
+        "address": address,
+        "matric": matric,
+        "fcmToken": fcmToken,
+      });
+
+      final CollectionReference userRef =
+          FirebaseFirestore.instance.collection("user");
+
+      if (sellerId.isNotEmpty) {
+        userRef.doc(matric).update({
+          'sellerId': sellerId,
+        });
+      }
+
+      //get FCM token for the device
+    }
   }
 
   void clearText() {
-    userController.clear();
+    sellerNameController.clear();
     emailController.clear();
     passController.clear();
     phoneController.clear();
     matricController.clear();
     addressController.clear();
     confirmpassController.clear();
+  }
+
+  Future<bool> checkSellerId(String matric) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${AppConfig.apiHostname}checkSellerId/$matric'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        hasSellerId = data['hasSellerId'];
+        print(hasSellerId);
+
+        setState(() {
+          if (hasSellerId) {
+            sellerId = data['sellerId'];
+
+            print('Fetched Seller ID: $sellerId');
+          } else {
+            print("User has no seller id.");
+          }
+        });
+        return hasSellerId;
+      } else {
+        print('Failed to fetch Seller ID. Status code: ${response.statusCode}');
+      }
+    } on Exception catch (e) {
+      print('Error checking seller ID: $e');
+    }
+    return false;
+  }
+
+  Future<void> generateSellerId(String matric) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${AppConfig.apiHostname}generateSellerId/$matric'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        //final String generatedSellerId = data['sellerId'];
+        setState(() {
+          sellerId = data['sellerId'];
+          hasSellerId = false;
+        });
+
+        print('Generated Seller ID: $sellerId');
+      } else {
+        print(
+            'Failed to generate seller ID. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error generating seller ID: $error');
+    }
   }
 
   @override
@@ -70,7 +135,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text("Sign Up",
+        title: const Text("Create Seller Account",
             style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -85,8 +150,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                   colors: [
-                Color.fromARGB(255, 229, 48, 48),
-                Color.fromARGB(255, 127, 18, 18)
+                Color.fromARGB(243, 81, 110, 252),
+                Color.fromARGB(255, 56, 38, 106),
               ])),
           child: SingleChildScrollView(
             child: Container(
@@ -99,7 +164,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       margin: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 10),
                       child: TextFormField(
-                        controller: userController,
+                        controller: sellerNameController,
                         decoration: InputDecoration(
                             prefixIcon: Icon(
                               Icons.person_2_outlined,
@@ -113,19 +178,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 borderRadius: BorderRadius.circular(30.0),
                                 borderSide: const BorderSide(
                                     width: 0, style: BorderStyle.none)),
-                            labelText: "Username"),
+                            labelText: "Seller Name"),
                         validator: (value) {
                           if (value!.isEmpty) {
-                            return "Please enter your username!";
+                            return "Please enter your seller name!";
                           } else {
                             return null;
                           }
                         },
-                        // onChanged: (value) {
-                        //   setState(() {
-                        //     username = value;
-                        //   });
-                        // },
                       ),
                     ),
                     Container(
@@ -154,11 +214,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             return null;
                           }
                         },
-                        // onChanged: (value) {
-                        //   setState(() {
-                        //     username = value;
-                        //   });
-                        // },
                       ),
                     ),
                     Container(
@@ -189,11 +244,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         //     return null;
                         //   }
                         // },
-                        // onChanged: (value) {
-                        //   setState(() {
-                        //     email = value;
-                        //   });
-                        // },
                       ),
                     ),
                     Container(
@@ -214,7 +264,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 borderRadius: BorderRadius.circular(30.0),
                                 borderSide: const BorderSide(
                                     width: 0, style: BorderStyle.none)),
-                            labelText: "Contact"),
+                            labelText: "Contact Number"),
                         // validator: (value) {
                         //   if (value!.isEmpty) {
                         //     return "Please enter your phone number!";
@@ -224,11 +274,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         //   } else {
                         //     return null;
                         //   }
-                        // },
-                        // onChanged: (value) {
-                        //   setState(() {
-                        //     phone = value;
-                        //   });
                         // },
                       ),
                     ),
@@ -258,11 +303,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             return null;
                           }
                         },
-                        // onChanged: (value) {
-                        //   setState(() {
-                        //     username = value;
-                        //   });
-                        // },
                       ),
                     ),
                     Container(
@@ -332,11 +372,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             return null;
                           }
                         },
-                        // onChanged: (value) {
-                        //   setState(() {
-                        //     confirm = value;
-                        //   });
-                        // },
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -349,39 +384,64 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: ElevatedButton(
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              await userRegister(
-                                      userController.text,
-                                      phoneController.text,
-                                      passController.text,
-                                      emailController.text,
-                                      addressController.text,
-                                      matricController.text)
-                                  .then((value) {
-                                clearText();
-                                final snackBar = SnackBar(
-                                  content: const Text(
-                                    "User Registered.",
-                                    style: TextStyle(color: Colors.black),
+                              bool check =
+                                  await checkSellerId(matricController.text);
+
+                              if (check) {
+                                const snackBar = SnackBar(
+                                  content: Text(
+                                    "Seller Account is created before.",
+                                    style: TextStyle(color: Colors.white),
                                   ),
-                                  action: SnackBarAction(
-                                    label: "Log In",
-                                    textColor: Colors.black,
-                                    onPressed: () {
-                                      Navigator.pushNamed(
-                                          context, SignInScreen.routeName);
-                                    },
-                                  ),
-                                  shape: const RoundedRectangleBorder(
+                                  shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.only(
                                         topLeft: Radius.circular(15),
                                         topRight: Radius.circular(15)),
                                   ),
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 102, 235, 122),
                                 );
                                 ScaffoldMessenger.of(context)
                                     .showSnackBar(snackBar);
-                              });
+                              } else {
+                                await sellerRegister(
+                                        sellerNameController.text,
+                                        phoneController.text,
+                                        passController.text,
+                                        emailController.text,
+                                        addressController.text,
+                                        matricController.text)
+                                    .then((value) {
+                                  clearText();
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text("Seller Registered"),
+                                        content: Text(
+                                          "Please Remember Your Seller ID: $sellerId",
+                                          style: const TextStyle(
+                                              color: Colors.black),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context)
+                                                  .pop(); // Close the dialog
+                                              Navigator.pushNamed(context,
+                                                  SellerSignInScreen.routeName);
+                                            },
+                                            child:
+                                                const Text("Log In As Seller"),
+                                          ),
+                                        ],
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(15)),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                });
+                              }
                             } else {
                               const snackbar = SnackBar(
                                 content: Text(
@@ -394,7 +454,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       topRight: Radius.circular(15)),
                                 ),
                                 backgroundColor:
-                                    Color.fromARGB(255, 102, 235, 122),
+                                    Color.fromARGB(255, 245, 179, 255),
                               );
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(snackbar);
@@ -406,7 +466,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20))),
                           child: const Text(
-                            "SIGN UP",
+                            "SIGN UP AS SELLER",
                             style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,

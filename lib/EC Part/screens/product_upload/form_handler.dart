@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:agro_plus_app/EC%20Part/provider/product_provider.dart';
@@ -10,7 +11,12 @@ enum ProductType { fixedPrice, auction }
 class FormHandler {
   bool loading = false;
   bool get isLoading => loading;
+  bool isEditMode = false;
+  String? auctionId = '';
+  String? brand = '';
+  String? model = '';
 
+  String? productId = '';
   String productName = '';
   String productDescription = '';
   ProductType productType = ProductType.fixedPrice; // Default to fixed price
@@ -23,79 +29,183 @@ class FormHandler {
 
   // Constructor if needed
   final ProductProvider productProvider;
-  FormHandler(this.productProvider);
+
+  FormHandler(this.productProvider, {required this.isEditMode});
 
   // Form submission method
-  Future<bool> submitForm(BuildContext context, String sellerUserId) async {
-    if (isFormValid()) {
+  Future<bool> submitForm(BuildContext context, String sellerId) async {
+    if (isFormValid(context)) {
       loading = true;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Processing data...'),
-        ),
-      );
-      final url = await uploadImgToFirebaseStorage(image!, context);
-      if (url != null) {
-        imgURL = url;
 
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        // Prevent closing the dialog by tapping outside
+        builder: (BuildContext context) {
+          return PopScope(
+            canPop: false,
+            child: Container(
+              color: Colors.grey,
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          );
+        },
+      );
+
+      try {
+        //await Future.delayed(Duration(seconds: 2));
+        //uploading the image to Firebase storage by converting to url
+
+        if (image != null) {
+          final url = await uploadImgToFirebaseStorage(image!, context);
+          if (url != null) {
+            imgURL = url;
+          }
+        } else {
+          if (!isEditMode) {
+            loading = false;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Failed to Upload Image.'),
+              ),
+            );
+            Navigator.pop(context);
+          }
+        }
         //retrieve userDocument
         final userDoc = await FirebaseFirestore.instance
             .collection('user')
-            .where('matric', isEqualTo: sellerUserId)
+            .where('sellerId', isEqualTo: sellerId)
             .get();
 
         if (userDoc.docs.isNotEmpty) {
           //get the reference to user document
-          final formData = processFormData(sellerUserId);
-          //save to firebase using product provider once getting the url
-          bool saved = await productProvider.addProduct(formData);
-          if (saved) {
-            return true;
+          //final formData = processFormData(sellerId);
+          //   final formData = isEditMode
+          // ? processEditFormData(sellerId)
+          // : processFormData(sellerId);
+
+          if (isEditMode) {
+            //if is editing a product details
+            final formData = processEditFormData(sellerId);
+            print('Product id in form handler: $productId');
+
+            //formData['id'] = productId;
+            //update to firebase using product provider
+            //final jsonData = jsonEncode(formData);
+            bool updatedProduct =
+                await productProvider.updateProduct(formData, productId);
+            if (!formData['isFixedPrice']) {
+              bool updatedAuction = await productProvider.updateAuctionEndTime(
+                  auctionId!, formData['endTime']);
+              if (updatedProduct && updatedAuction) {
+                // Handle successful update
+                return true;
+              } else {
+                // Handle update failure
+                return false;
+              }
+            }
+
+            if (updatedProduct) {
+              // Handle successful update
+              return true;
+            } else {
+              // Handle update failure
+              return false;
+            }
+          } else {
+            //if is uploading new product
+            final formData = processFormData(sellerId);
+            //final jsonData = jsonEncode(formData);
+            //save to firebase using product provider once getting the url
+            bool saved = await productProvider.addProduct(formData);
+
+            if (saved) {
+              // Handle successful update
+              return true;
+            } else {
+              // Handle update failure
+              return false;
+            }
           }
         }
-      } else {
+      } catch (error) {
+        // Handle errors here
+        print("Error: $error");
+
+        // Dismiss the dialog in case of an error
+        Navigator.pop(context);
+
+        return false;
+      } finally {
+        // Ensure that loading is set to false regardless of success or failure
         loading = false;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to Upload Image.'),
-          ),
-        );
+        Navigator.pop(context);
       }
     }
     return false;
   }
 
-  // Validation method
-  bool isFormValid() {
+// Validation method
+  bool isFormValid(BuildContext context) {
+    bool isValid = true;
+    print('isEditMode: $isEditMode');
+
     if (productName.isEmpty) {
-      print('productName is empty');
+      isValid = false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Product Name is required'),
+        ),
+      );
     }
     if (productDescription.isEmpty) {
-      print('productDescription is empty');
+      isValid = false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Product Description is required'),
+        ),
+      );
     }
     if (productType == ProductType.auction &&
-        endTime.isBefore(DateTime.now())) {
-      print('Auction end time should be in the future.');
-      return false;
+        endTime.isBefore(DateTime.now().add(const Duration(days: 1)))) {
+      isValid = false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              'Auction end time should be at least one day before it ends'),
+        ),
+      );
     }
     if (price <= 0) {
-      print('price is not greater than 0');
+      isValid = false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Price must be greater than 0'),
+        ),
+      );
     }
     if (category == null) {
-      print('category is null');
+      isValid = false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Category is required'),
+        ),
+      );
     }
-    if (image == null) {
-      print('image is null');
-    }
-    if (endTime == null) {
-      print('EndTime is null');
+    if (!isEditMode && image == null) {
+      isValid = false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Image is required'),
+        ),
+      );
     }
 
-    return productName.isNotEmpty &&
-        productDescription.isNotEmpty &&
-        price > 0 &&
-        category != null &&
-        image != null;
+    return isValid;
   }
 
   Future<String?> uploadImgToFirebaseStorage(
@@ -114,44 +224,8 @@ class FormHandler {
     }
   }
 
-  Future<bool> saveToFirebase(
-      Map<String, dynamic> formData, BuildContext context) async {
-    try {
-      final CollectionReference products =
-          FirebaseFirestore.instance.collection('products');
-      final DocumentReference productDocumentReference =
-          await products.add(formData);
-
-      // If it's an auction, save additional details to 'auctions' collection
-      if (productType == ProductType.auction) {
-        print(productType);
-        final CollectionReference auctions =
-            FirebaseFirestore.instance.collection('auctions');
-
-        final Map<String, dynamic> auctionData = {
-          'productId': productDocumentReference.id,
-          'sellerId': formData['sellerUserId'],
-          'highestBid': formData['price'], // Set initial highest bid
-          'endTime': formData['endTime'],
-          'startPrice': formData['price'],
-          'status': "Start",
-        };
-
-        final DocumentReference auctionDocumentReference =
-            await auctions.add(auctionData);
-        print('Product added with Id: ${productDocumentReference.id}');
-        print('Auction added with Id: ${auctionDocumentReference.id}');
-      }
-
-      return true;
-    } catch (error) {
-      print('Error in adding product: $error');
-      return false;
-    }
-  }
-
   // Data processing method: prepare data for storing in firebase
-  Map<String, dynamic> processFormData(String sellerUserId) {
+  Map<String, dynamic> processFormData(String sellerId) {
     // Common data
     final formData = {
       'name': productName,
@@ -159,18 +233,61 @@ class FormHandler {
       'price': price,
       'category': category,
       'image': imgURL,
-      'sellerUserId': sellerUserId,
+      'sellerId': sellerId,
       'isSold': false,
-      'createdDate': DateTime.now(),
+      'createdDate': DateTime.now().toIso8601String(),
+      'cartCount': 0,
+      'clicks': 0,
     };
 
     // Additional data based on product type
     if (productType == ProductType.auction) {
       formData['isFixedPrice'] = false;
       print('this is an auction product');
-      formData['endTime'] = endTime;
+      formData['endTime'] = endTime.toIso8601String();
     } else {
       formData['isFixedPrice'] = true;
+    }
+
+    // Optional fields
+    if (model != null && model!.isNotEmpty) {
+      formData['model'] = model;
+    }
+    if (brand != null && brand!.isNotEmpty) {
+      formData['brand'] = brand;
+    }
+
+    return formData;
+  }
+
+  Map<String, dynamic> processEditFormData(String sellerId) {
+    // Common data
+    final formData = {
+      'name': productName,
+      'description': productDescription,
+      'price': price,
+      'category': category,
+      'image': imgURL,
+      'sellerId': sellerId,
+    };
+
+    // Additional data based on product type
+    if (productType == ProductType.auction) {
+      formData['isFixedPrice'] = false;
+      print('this is an auction product');
+      formData['endTime'] = endTime.toIso8601String();
+      ;
+    } else {
+      formData['isFixedPrice'] = true;
+    }
+
+    // Optional fields
+    if (model != null && model!.isNotEmpty) {
+      formData['model'] = model;
+    }
+
+    if (brand != null && brand!.isNotEmpty) {
+      formData['brand'] = brand;
     }
 
     return formData;

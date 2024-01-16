@@ -20,6 +20,7 @@ class CategoryProductsScreen extends StatelessWidget {
     }
     final String category = categoryData['categoryName'];
 
+    //function to fetch products based on category
     Future<List<QueryDocumentSnapshot>> fetchCategoryProducts(
         String category) async {
       print("Fetching products for category: $category");
@@ -32,7 +33,31 @@ class CategoryProductsScreen extends StatelessWidget {
 
       print("Category query result: ${productQuery.docs}");
 
-      return productQuery.docs;
+      final filteredProducts = <QueryDocumentSnapshot>[];
+
+      for (final productDoc in productQuery.docs) {
+        final isFixedPrice = productDoc['isFixedPrice'] as bool;
+
+        if (!isFixedPrice) {
+          // Check if the product is not fixed price, then check auction status
+          final productId = productDoc.id;
+          final auctionsQuery = await FirebaseFirestore.instance
+              .collection('auctions')
+              .where('productId', isEqualTo: productId)
+              .where('endTime', isGreaterThan: DateTime.now())
+              .get();
+
+          if (auctionsQuery.docs.isNotEmpty) {
+            // Check if there are active auctions for the product
+            filteredProducts.add(productDoc);
+          }
+        } else {
+          // For fixed price products, directly add to the list
+          filteredProducts.add(productDoc);
+        }
+      }
+
+      return filteredProducts;
     }
 
     return FutureBuilder<List<QueryDocumentSnapshot>>(
@@ -49,31 +74,106 @@ class CategoryProductsScreen extends StatelessWidget {
 
           return Scaffold(
               appBar: AppBar(
+                iconTheme: const IconThemeData(
+                  color: Colors.white, //change your color here
+                ),
                 backgroundColor: const Color.fromARGB(255, 197, 0, 0),
-                elevation: 5,
+                //elevation: 5,
                 title: Text(
                   category,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    //fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
-              body: products != null && products.isNotEmpty
-                  ? productListingWidget(products)
-                  : const Center(
-                      child: Text('No Products available.'),
-                    ));
+              body: SingleChildScrollView(
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 70, // Adjust the height as needed
+                        margin: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(10.0),
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [
+                                Color.fromARGB(243, 251, 198, 149),
+                                Color.fromARGB(255, 251, 171, 207),
+                              ]),
+                          //color: Color.fromARGB(255, 255, 193, 216),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          // borderRadius: BorderRadius.only(
+                          //     bottomLeft: Radius.circular(10),
+                          //     bottomRight: Radius.circular(10)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey,
+                              offset: Offset(0, 2),
+                              blurRadius: 6,
+                            ),
+                          ],
+                        ),
+                        alignment: Alignment.center,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            //const Text(
+                            //   "Price Colour: ",
+                            //   style: TextStyle(fontSize: 15),
+                            // ),
+                            _buildLegendItem(
+                              "Auction",
+                              const Color.fromARGB(255, 69, 192, 3),
+                            ),
+                            _buildLegendItem(
+                              "Fixed Price",
+                              const Color(0xFFFF7643),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: products != null && products.isNotEmpty
+                            ? productListingWidget(products)
+                            : const Center(
+                                child: Text('No Products available.'),
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+              ));
         }
       },
     );
   }
 
-  // //Function to retrieve Auction data
-  Future<DocumentSnapshot> fetchAuctionData(String productId) async {
-    final auctionData = FirebaseFirestore.instance
-        .collection('auctions')
-        .where('productId', isEqualTo: productId)
-        .get()
-        .then((snapshot) => snapshot.docs.first);
-
-    return auctionData;
+  Widget _buildLegendItem(String label, Color color) {
+    return Row(children: [
+      Container(
+        decoration: BoxDecoration(
+            color: color,
+            border: Border.all(
+              color: const Color.fromARGB(255, 84, 90, 46),
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(10))),
+        width: 20, // Adjust the width of the colored box
+        height: 20, // Adjust the height of the colored box
+        margin: const EdgeInsets.only(right: 8),
+      ),
+      Text(
+        label,
+        style: const TextStyle(
+          //color: Colors.white,
+          fontWeight: FontWeight.w500,
+          fontSize: 16,
+        ),
+      ),
+    ]);
   }
 
   //widget to return product Listing

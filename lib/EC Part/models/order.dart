@@ -1,47 +1,84 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Order_ {
-  final String productId;
-  final String productName;
-  final int numOfItems;
-  final String userId;
+  final String orderId;
+  final String customerId;
   final String status;
   final double totalPrice;
   final DateTime transactionDate;
+  final List<OrderItem> orderItems;
 
   Order_({
-    required this.productName,
-    required this.productId,
-    required this.numOfItems,
-    required this.userId,
+    //required this.numOfItems,
+    required this.orderId,
+    required this.customerId,
     required this.status,
     required this.totalPrice,
     required this.transactionDate,
+    required this.orderItems,
   });
 
   factory Order_.fromSnapshot(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    final Timestamp date = data['transactionDate'];
+
+    final List<dynamic> items = data['orderItems'] ?? [];
+    final List<OrderItem> orderItems = items.map((item) {
+      return OrderItem(
+        productId: item['productId'],
+        productName: item['productName'],
+        price: item['price'],
+        numOfItem: item['numOfItems'],
+      );
+    }).toList();
     //populate order fields from the data
     return Order_(
-      productName: data['productName'],
-      productId: data['productId'],
-      numOfItems: data['numOfItems'],
-      userId: data['userId'],
+      // productName: data['productName'],
+      // productId: data['productId'],
+      // numOfItems: data['numOfItems'],
+      orderId: doc.id,
+      customerId: data['customerId'],
       status: data['status'],
       totalPrice: data['totalPrice'],
-      transactionDate: data['transactionDate'],
+      transactionDate: date.toDate(),
+      orderItems: orderItems,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'productName': productName,
-      'productId': productId,
-      'numOfItems': numOfItems,
-      'userId': userId,
+      // 'productName': productName,
+      // 'productId': productId,
+      // 'numOfItems': numOfItems,
+      'orderId': orderId,
+      'customerId': customerId,
       'status': status,
       'totalPrice': totalPrice,
       'transactionDate': transactionDate,
+      'orderItems': orderItems.map((item) => item.toMap()).toList(),
+    };
+  }
+}
+
+class OrderItem {
+  final String productId;
+  final String productName;
+  final double price;
+  final int numOfItem;
+
+  OrderItem({
+    required this.productId,
+    required this.productName,
+    required this.price,
+    required this.numOfItem,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'productId': productId,
+      'productName': productName,
+      'price': price,
+      'numOfItem': numOfItem,
     };
   }
 }

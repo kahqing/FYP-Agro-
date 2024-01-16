@@ -9,7 +9,7 @@ class OrderProvider extends ChangeNotifier {
   List<Order_> orders = [];
   String orderId = '';
 
-  late final CartProvider cartProvider;
+  //late final CartProvider cartProvider;
   OrderProvider({required this.matric}) {
     // Fetch user's order data from Firebase
     loadOrder();
@@ -26,7 +26,7 @@ class OrderProvider extends ChangeNotifier {
     if (matric != null && matric.isNotEmpty) {
       QuerySnapshot ordersQuery = await FirebaseFirestore.instance
           .collection('orders')
-          .where('matric', isEqualTo: matric)
+          .where('customerId', isEqualTo: matric)
           .get();
       // Check if any documents were found
       if (ordersQuery.docs.isNotEmpty) {
@@ -34,14 +34,15 @@ class OrderProvider extends ChangeNotifier {
             ordersQuery.docs.map((doc) => Order_.fromSnapshot(doc)).toList();
       }
     } else {
-      print('User\'s order document is not found');
+      print('No orders found for customerId: $matric');
     }
 
     notifyListeners();
   }
 
   //Function to add new order in Firebase
-  Future<String?> addOrder(List<Cart> cartItems, double totalPrice) async {
+  Future<String?> addOrder(List<Cart> cartItems, double totalPrice,
+      CartProvider cartProvider) async {
     try {
       // Create an order document in the 'orders' collection
       DocumentReference orderRef =
@@ -54,6 +55,7 @@ class OrderProvider extends ChangeNotifier {
 
       //Get the order doc id
       String orderId = orderRef.id;
+      print('OrderID: $orderId');
 
       // Create a subcollection 'orderItems' within the order document
       CollectionReference orderItemsRef = FirebaseFirestore.instance
@@ -70,17 +72,17 @@ class OrderProvider extends ChangeNotifier {
           'price': cartItem.price,
         });
 
-        // Delete the product item from Firebase
+        //update product status (isSold) is true
         await FirebaseFirestore.instance
             .collection('products')
             .doc(cartItem.productId)
-            .delete();
+            .update({'isSold': true});
 
         //delete the cartItems
         await cartProvider.deleteCartItem(cartItem.productId);
       }
 
-      print("order item added successfully");
+      print("order items added successfully");
 
       notifyListeners();
       return orderId;

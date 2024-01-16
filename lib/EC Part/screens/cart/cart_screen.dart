@@ -32,7 +32,7 @@ class _CartScreenState extends State<CartScreen> {
       iconTheme: const IconThemeData(
         color: Colors.white, //change your color here
       ),
-      backgroundColor: Color.fromARGB(255, 197, 0, 0),
+      backgroundColor: const Color.fromARGB(255, 197, 0, 0),
       elevation: 5,
       title: Column(
         children: [
@@ -60,7 +60,12 @@ class _CartScreenState extends State<CartScreen> {
       actions: [
         IconButton(
           onPressed: () {
-            Navigator.pushNamed(context, ECMainScreen.routeName);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ECMainScreen(matric: widget.matric),
+              ),
+            );
           },
           icon: const Icon(
             Icons.home_filled,
@@ -87,15 +92,15 @@ class _CartScreenState extends State<CartScreen> {
         demoCarts = cartProvider.cartList;
 
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
           child: ListView.builder(
             itemCount: demoCarts.length,
             itemBuilder: (context, index) {
               return Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: const Color.fromARGB(255, 255, 255, 255),
                     boxShadow: const [
                       BoxShadow(
                         color: Colors.grey, // Shadow color
@@ -112,11 +117,38 @@ class _CartScreenState extends State<CartScreen> {
                         child: cart_card(cart: demoCarts[index]),
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete), // Use the trash can icon
+                        icon:
+                            const Icon(Icons.delete), // Use the trash can icon
                         onPressed: () {
-                          cartProvider
-                              .deleteCartItem(demoCarts[index].productId);
-                          print('itemId: ${demoCarts[index].productId}');
+                          //display a delete confirmation dialog
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text('Delete Product'),
+                                content: const Text(
+                                    'Are you sure to remove this product from cart?'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('Cancel'),
+                                    onPressed: () {
+                                      //Close if cancel
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  TextButton(
+                                      child: const Text('Delete'),
+                                      onPressed: () {
+                                        cartProvider.deleteCartItem(
+                                            demoCarts[index].productId);
+                                        print(
+                                            'itemId: ${demoCarts[index].productId}');
+                                        Navigator.of(context).pop();
+                                      })
+                                ],
+                              );
+                            },
+                          );
                         },
                       ),
                     ],
@@ -131,51 +163,49 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget cart_card({required Cart cart}) {
-    return Container(
-      child: Row(
-        children: [
-          SizedBox(
-            width: 120,
-            child: AspectRatio(
-              aspectRatio: 0.88,
-              child: Container(
-                padding: EdgeInsets.all(10),
-                child: Image.network(cart.image),
-              ),
+    return Row(
+      children: [
+        SizedBox(
+          width: 120,
+          child: AspectRatio(
+            aspectRatio: 0.88,
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              child: Image.network(cart.image),
             ),
           ),
-          const SizedBox(width: 20),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                cart.productName,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                ),
-                maxLines: 2,
+        ),
+        const SizedBox(width: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              cart.productName,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 18,
               ),
-              const SizedBox(height: 10),
-              Text.rich(
-                TextSpan(
-                  text: "RM${cart.price.toStringAsFixed(2)}",
-                  style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Color.fromARGB(255, 179, 52, 6)),
-                  children: [
-                    TextSpan(
-                      text: "   x${cart.numOfItem}",
-                      //style: Theme.of(context).textTheme.bodyText1
-                    ),
-                  ],
-                ),
-              )
-            ],
-          )
-        ],
-      ),
+              maxLines: 2,
+            ),
+            const SizedBox(height: 10),
+            Text.rich(
+              TextSpan(
+                text: "RM${cart.price.toStringAsFixed(2)}",
+                style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color.fromARGB(255, 179, 52, 6)),
+                children: [
+                  TextSpan(
+                    text: "   x${cart.numOfItem}",
+                    //style: Theme.of(context).textTheme.bodyText1
+                  ),
+                ],
+              ),
+            )
+          ],
+        )
+      ],
     );
   }
 
@@ -197,9 +227,9 @@ class _CartScreenState extends State<CartScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              offset: Offset(0, -15),
+              offset: const Offset(0, -15),
               blurRadius: 20,
-              color: Color(0xFFDADADA).withOpacity(0.15),
+              color: const Color(0xFFDADADA).withOpacity(0.15),
             )
           ],
         ),
@@ -243,14 +273,19 @@ class _CartScreenState extends State<CartScreen> {
                       },
                       style: ButtonStyle(
                         minimumSize: MaterialStateProperty.all<Size>(
-                            Size(150, 50)), // Change the size as needed
+                            const Size(150, 50)), // Change the size as needed
                         backgroundColor: MaterialStateProperty.all<Color>(
-                            Color.fromARGB(255, 255, 255,
-                                255)), // Change the color to your desired color
+                            const Color.fromARGB(255, 255, 255, 255)),
+                        shape: MaterialStateProperty.all<OutlinedBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                30.0), // Adjust the radius as needed
+                          ),
+                        ),
                       ),
                       child: const Text(
                         "Check Out",
-                        style: TextStyle(fontSize: 20),
+                        style: TextStyle(fontSize: 20, color: Colors.black),
                       ),
                     ),
                   ),

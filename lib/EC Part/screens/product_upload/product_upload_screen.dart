@@ -25,14 +25,17 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
 
     //if product is added successfully
     if (uploadStatus) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Product is added successfully.'),
         ),
       );
       //navigate back to seller dashboard
+      // ignore: use_build_context_synchronously
       Navigator.pop(context, true);
     } else {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Form data is not valid.'),
@@ -45,6 +48,8 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 197, 0, 0),
+        elevation: 5,
         title: const Text('Upload Product'),
       ),
       bottomNavigationBar: uploadProductButton(),
@@ -74,6 +79,10 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
                     maxLines: 4,
                   ),
                   _buildSellingTypeRadioButton(),
+                  const SizedBox(height: 10),
+                  formHandler.productType == ProductType.auction
+                      ? _buildDateTimeWidget()
+                      : const SizedBox.shrink(),
                   _buildTextField(
                     labelText: 'Product Price',
                     keyboardType: TextInputType.number,
@@ -85,20 +94,34 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
                   ),
                   _buildDropDownMenuCategory(),
                   Container(
+                    margin: const EdgeInsets.symmetric(vertical: 5.0),
                     height: 200,
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: Colors.black, // Color of the border
+                        color: Colors.grey, // Color of the border
                         width: 1.0, // Width of the border
                       ),
-                      borderRadius: BorderRadius.circular(5.0),
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
                     child: formHandler.image != null
                         ? Image.file(formHandler.image!)
                         : Center(
                             child: ElevatedButton(
-                              onPressed: _showSimpleDialog,
-                              child: const Text('Upload Product Image'),
+                              onPressed: showImagePickerDialog,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 255, 182, 182),
+                                elevation: 3,
+                                // shape: RoundedRectangleBorder(
+                                //   borderRadius: BorderRadius.circular(30.0),
+                                // ),
+                              ),
+                              child: const Text(
+                                'Upload Product Image',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                ),
+                              ),
                             ),
                           ),
                   )
@@ -108,7 +131,7 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
     );
   }
 
-  Future<void> _showSimpleDialog() async {
+  Future<void> showImagePickerDialog() async {
     await showDialog<void>(
         context: context,
         builder: (BuildContext context) {
@@ -138,6 +161,7 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
 
     if (image == null) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('No file selected'),
@@ -154,6 +178,7 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
     final image = await ImagePicker().pickImage(source: ImageSource.camera);
 
     if (image == null) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('No file selected'),
@@ -181,7 +206,7 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
           labelText: labelText,
           alignLabelWithHint: true,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5.0),
+            borderRadius: BorderRadius.circular(10.0),
           ),
         ),
       ),
@@ -190,12 +215,14 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
 
   Widget _buildDropDownMenuCategory() {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 5.0),
+      margin: const EdgeInsets.symmetric(vertical: 5.0),
       height: 62,
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: 'Category',
-          border: OutlineInputBorder(),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
         ),
         child: DropdownButtonHideUnderline(
           child: ButtonTheme(
@@ -227,13 +254,174 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
     );
   }
 
+  Widget _buildDateTimeWidget() {
+    DateTime selectedDate = DateTime.now();
+    TimeOfDay selectedTime = TimeOfDay.now();
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 2.0),
+      child: _buildDateTimePicker(
+        labelText: 'Select Auction End Date',
+        selectedDate: selectedDate,
+        selectedTime: selectedTime,
+        onDateChanged: (DateTime date) {
+          setState(() {
+            selectedDate = date;
+          });
+        },
+        onTimeChanged: (TimeOfDay time) {
+          setState(() {
+            selectedTime = time;
+          });
+          formHandler.endTime = selectedDate.add(
+            Duration(
+              hours: selectedTime.hour,
+              minutes: selectedTime.minute,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  //Method to show the auction details dialog
+  Future<void> showAuctionDialog() async {
+    DateTime selectedDate = DateTime.now();
+    TimeOfDay selectedTime = TimeOfDay.now();
+
+    await showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Auction Details'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              _buildDateTimePicker(
+                labelText: 'Select Date and Time',
+                selectedDate: selectedDate,
+                selectedTime: selectedTime,
+                onDateChanged: (DateTime date) {
+                  setState(() {
+                    selectedDate = date;
+                  });
+                },
+                onTimeChanged: (TimeOfDay time) {
+                  setState(() {
+                    selectedTime = time;
+                  });
+                },
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Add any validation logic here if needed
+                formHandler.endTime = selectedDate.add(
+                  Duration(
+                    hours: selectedTime.hour,
+                    minutes: selectedTime.minute,
+                  ),
+                );
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Helper method to build date and time picker
+  Widget _buildDateTimePicker({
+    required String labelText,
+    required DateTime selectedDate,
+    required TimeOfDay selectedTime,
+    required Function(DateTime) onDateChanged,
+    required Function(TimeOfDay) onTimeChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () async {
+            final DateTime? pickedDate = await showDatePicker(
+              context: context,
+              initialDate: selectedDate,
+              firstDate: DateTime.now(),
+              lastDate: DateTime(2101),
+            );
+
+            if (pickedDate != null && pickedDate != selectedDate) {
+              onDateChanged(pickedDate);
+            }
+          },
+          child: InputDecorator(
+            decoration: InputDecoration(
+              labelText: labelText,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.date_range),
+                const SizedBox(width: 10),
+                Text(
+                  "${selectedDate.toLocal()}".split(' ')[0],
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        InkWell(
+          onTap: () async {
+            final TimeOfDay? pickedTime = await showTimePicker(
+              context: context,
+              initialTime: selectedTime,
+            );
+
+            if (pickedTime != null && pickedTime != selectedTime) {
+              onTimeChanged(pickedTime);
+            }
+          },
+          child: InputDecorator(
+            decoration: InputDecoration(
+              labelText: 'Select Auction End Time',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.access_time),
+                const SizedBox(width: 10),
+                Text(
+                  selectedTime.format(context),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildSellingTypeRadioButton() {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5.0),
       height: 100,
       decoration: BoxDecoration(
         border: Border.all(
-          color: Colors.black54,
+          color: Colors.grey,
           width: 1.0,
         ),
         borderRadius: BorderRadius.circular(5.0),
@@ -247,7 +435,7 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
               padding: EdgeInsets.only(left: 8.0),
               child: Text(
                 'Selling Type',
-                style: TextStyle(fontSize: 17, color: Colors.black54),
+                style: TextStyle(fontSize: 16, color: Colors.black54),
               ),
             ),
           ),
@@ -259,11 +447,11 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
               contentPadding: EdgeInsets.zero,
               leading: Radio<bool>(
                   value: true,
-                  groupValue: formHandler.isFixedPrice,
+                  groupValue: formHandler.productType == ProductType.fixedPrice,
                   onChanged: (bool? value) {
                     setState(
                       () {
-                        formHandler.isFixedPrice = true;
+                        formHandler.productType = ProductType.fixedPrice;
                       },
                     );
                   }),
@@ -277,11 +465,12 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
               contentPadding: EdgeInsets.zero,
               leading: Radio<bool>(
                   value: false,
-                  groupValue: formHandler.isFixedPrice,
+                  groupValue: formHandler.productType == ProductType.fixedPrice,
                   onChanged: (bool? value) {
                     setState(
                       () {
-                        formHandler.isFixedPrice = false;
+                        formHandler.productType = ProductType.auction;
+                        //showAuctionDialog();
                       },
                     );
                   }),
@@ -298,8 +487,8 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
       child: ElevatedButton(
         onPressed: submitForm,
         style: ElevatedButton.styleFrom(
-            fixedSize: const Size(300, 60),
-            primary: Color.fromARGB(255, 253, 131, 129),
+            //fixedSize: const Size(300, 50),
+            backgroundColor: const Color.fromARGB(255, 197, 0, 0),
             elevation: 3,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30.0),
@@ -307,7 +496,6 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
         child: const Text(
           'Upload New Product',
           style: TextStyle(
-            fontSize: 20,
             color: Colors.white,
           ),
         ),

@@ -2,8 +2,8 @@ import 'package:agro_plus_app/EC Part/models/product.dart';
 import 'package:agro_plus_app/EC Part/screens/detail/detail_screen.dart';
 import 'package:flutter/material.dart';
 
-class ProductCard extends StatelessWidget {
-  const ProductCard({
+class FixedPriceProductCard extends StatelessWidget {
+  const FixedPriceProductCard({
     Key? key,
     this.width = 175, // Increase the width value to your desired size
     this.aspectRatio = 0.9, // Adjust the aspect ratio as needed
@@ -23,34 +23,38 @@ class ProductCard extends StatelessWidget {
       child: SizedBox(
         width: width,
         child: GestureDetector(
-          onTap: () => Navigator.pushNamed(
-            context,
-            DetailsScreen.routeName,
-            arguments: ProductDetailsArguments(product: product),
-          ),
+          onTap: () {
+            Navigator.pushNamed(context, DetailsScreen.routeName,
+                arguments: ProductDetailsArguments(product: product));
+          },
           child: Container(
-            padding: EdgeInsets.all(10), //padding inside the product card
+            padding: const EdgeInsets.all(10), //padding inside the product card
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 255, 255, 255),
+              color: const Color.fromARGB(255, 255, 255, 255),
               borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AspectRatio(
                   aspectRatio: aspectRatio, // Use the specified aspectRatio
-                  child: Container(
-                    child: Image.network(
-                      product.image,
-                      fit:
-                          BoxFit.cover, // Ensure the image covers the container
-                    ),
+                  child: Image.network(
+                    product.image,
+                    fit: BoxFit.cover, // Ensure the image covers the container
                   ),
                 ),
 
                 Text(
                   product.name,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     color: Colors.black,
                   ),
@@ -59,7 +63,7 @@ class ProductCard extends StatelessWidget {
                 ),
                 Text(
                   "RM${product.price.toStringAsFixed(2)}",
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFFFF7643),

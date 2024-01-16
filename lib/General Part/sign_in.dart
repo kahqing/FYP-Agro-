@@ -3,7 +3,9 @@ import 'package:agro_plus_app/EC%20Part/provider/order_provider.dart';
 import 'package:agro_plus_app/EC%20Part/provider/product_provider.dart';
 import 'package:agro_plus_app/General%20Part/home_page.dart';
 import 'package:agro_plus_app/General%20Part/sign_up.dart';
+import 'package:agro_plus_app/matric_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -37,6 +39,10 @@ class _SignInScreenState extends State<SignInScreen> {
         String storedPassword = data['password'];
 
         if (storedPassword == password) {
+          final firebaseMessaging = FirebaseMessaging.instance;
+          await FirebaseMessaging.instance.requestPermission();
+          final fcmToken = await firebaseMessaging.getToken();
+          print('FCM Token: $fcmToken');
           // Pass matric to CartProvider
           Provider.of<CartProvider>(context, listen: false)
               .updateMatric(matric);
@@ -46,6 +52,9 @@ class _SignInScreenState extends State<SignInScreen> {
           // Pass matric to ProductProvider
           Provider.of<ProductProvider>(context, listen: false)
               .updateMatric(matric);
+          //update and save matric to sharedPreferences (matricStorage)
+          MatricStorage().saveMatric(matric);
+
           // ignore: use_build_context_synchronously
           Navigator.push(
               context,

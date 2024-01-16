@@ -1,5 +1,6 @@
 import 'package:agro_plus_app/General%20Part/sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -23,8 +24,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Future<void> userRegister(
       username, phone, password, email, address, matric) async {
+    final firebaseMessaging = FirebaseMessaging.instance;
+    await FirebaseMessaging.instance.requestPermission();
+    final fcmToken = await firebaseMessaging.getToken();
+    print('FCM Token: $fcmToken');
+
     final CollectionReference ref =
         FirebaseFirestore.instance.collection("user");
+
     ref.doc(matric).set({
       'username': username,
       'phone': phone,
@@ -40,10 +47,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
       "frontIC": "",
       "backIC": "",
       "ic": "",
-      "balance": 0,
-      "tabungAmount": "0"
+      "balance": 0
     });
+    //get FCM token for the device
   }
+
+  // void saveFcmTokenToFirestore(String? matric, String? fcmToken) {
+  //   if (matric != null && fcmToken != null) {
+  //     FirebaseFirestore.instance.collection('user').doc(matric).set({
+  //       'fcmToken': fcmToken,
+  //     }).then((_) {
+  //       print('FCM Token saved to Firestore for user $matric');
+  //     }).catchError((error) {
+  //       print('Error saving FCM Token: $error');
+  //     });
+  //   } else {
+  //     print('Matric or FCM Token is null');
+  //   }
+  // }
 
   void clearText() {
     userController.clear();

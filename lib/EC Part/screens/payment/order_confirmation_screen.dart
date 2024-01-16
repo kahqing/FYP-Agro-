@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 
 class OrderConfirmationScreen extends StatelessWidget {
   static String routeName = '/order_confirmation';
-
+  final String matric;
   final String orderId;
 
-  OrderConfirmationScreen({required this.orderId});
+  OrderConfirmationScreen({required this.orderId, required this.matric});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 197, 0, 0),
+        backgroundColor: const Color.fromARGB(255, 197, 0, 0),
         elevation: 5,
         title: const Text(
           'Order Confirmation',
@@ -22,7 +22,7 @@ class OrderConfirmationScreen extends StatelessWidget {
           ),
         ),
       ),
-      backgroundColor: Color.fromARGB(255, 249, 176, 176),
+      //backgroundColor: Color.fromARGB(255, 249, 176, 176),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -44,7 +44,7 @@ class OrderConfirmationScreen extends StatelessWidget {
             const Text(
               'Payment done Successfully',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 16,
               ),
             ),
             const SizedBox(height: 100),
@@ -55,12 +55,23 @@ class OrderConfirmationScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                //fixedSize: const Size(300, 50),
+                backgroundColor: const Color.fromARGB(255, 197, 0, 0),
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                )),
             onPressed: () {
               //Navigate back to EC home screen
+
               Navigator.of(context).pushNamedAndRemoveUntil(
-                  ECMainScreen.routeName, (Route<dynamic> route) => false);
+                ECMainScreen.routeName,
+                (Route<dynamic> route) => false,
+                arguments: {'matric': matric},
+              );
             },
             child: const Text(
               'Back',

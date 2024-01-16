@@ -21,6 +21,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
   @override
   void initState() {
     super.initState();
+    productProvider = ProductProvider(matric: widget.sellerUserId);
     productProvider.loadSellerProducts();
     productList = productProvider.sellerProducts;
   }
@@ -29,6 +30,8 @@ class _SellerDashboardState extends State<SellerDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 197, 0, 0),
+        elevation: 5,
         title: const Text('Seller Dashboard'),
       ),
       body: sellerItem(context),
@@ -50,7 +53,25 @@ class _SellerDashboardState extends State<SellerDashboard> {
                 .loadSellerProducts();
           }
         },
-        child: const Icon(Icons.add),
+        backgroundColor: const Color.fromARGB(255, 197, 0, 0),
+        //foregroundColor: Colors.black,
+        child: Container(
+          height: 70,
+          width: 70,
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.all(Radius.circular(50)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.redAccent.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 2,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }
@@ -73,7 +94,7 @@ class _SellerDashboardState extends State<SellerDashboard> {
           itemCount: productList.length,
           itemBuilder: (context, index) {
             return Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.symmetric(vertical: 10),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
@@ -135,7 +156,8 @@ class _SellerDashboardState extends State<SellerDashboard> {
           Spacer(),
           IconButton(
             icon: const Icon(Icons.delete),
-            color: Color.fromARGB(255, 197, 0, 0), // Use the trash can icon
+            color:
+                const Color.fromARGB(255, 197, 0, 0), // Use the trash can icon
             onPressed: () {
               //display a delete confirmation dialog
               showDialog(

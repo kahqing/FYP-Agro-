@@ -1,12 +1,12 @@
 //import 'package:agro_app/screens/product_listing/listing.dart';
-import 'package:agro_plus_app/EC%20Part/screens/category_listing_screen.dart';
+import 'package:agro_plus_app/EC%20Part/screens/product_listing/category_listing_screen.dart';
 import 'package:flutter/material.dart';
 
 class Categories extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CategoryRows(
-      categoriesRow1: [
+      categoriesRow1: const [
         {
           "icon":
               "https://firebasestorage.googleapis.com/v0/b/testapp-f4cb8.appspot.com/o/icons%2Fclothes-rack.png?alt=media&token=5b776595-89e4-489e-ad44-442ded04b925&_gl=1*x26j28*_ga*MTcxNTYyMzY4MC4xNjk2NzY5MDg4*_ga_CW55HF8NVT*MTY5ODkxMTkyNy40MS4xLjE2OTg5MTIyNjcuNjAuMC4w",
@@ -26,7 +26,7 @@ class Categories extends StatelessWidget {
           "category": "Food and Drinks"
         },
       ],
-      categoriesRow2: [
+      categoriesRow2: const [
         {
           "icon":
               "https://firebasestorage.googleapis.com/v0/b/testapp-f4cb8.appspot.com/o/icons%2Fbook.png?alt=media&token=284bd19b-b076-4fba-beb2-aa3f50c7249e&_gl=1*1r5kz56*_ga*MTcxNTYyMzY4MC4xNjk2NzY5MDg4*_ga_CW55HF8NVT*MTY5ODk5ODc0MC40Ny4xLjE2OTg5OTk4MjMuMzMuMC4w",
@@ -132,6 +132,14 @@ class CategoryCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Color.fromARGB(255, 239, 97, 97),
                 borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 3,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: Image.network(
                 icon!,
@@ -139,7 +147,7 @@ class CategoryCard extends StatelessWidget {
                 height: 40,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(text!, textAlign: TextAlign.center)
           ],
         ),

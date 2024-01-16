@@ -1,40 +1,29 @@
 import 'package:agro_plus_app/EC%20Part/models/product.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:agro_plus_app/EC Part/widgets/product_card.dart';
 
-import '../widgets/product_card.dart';
-
-class CategoryProductsScreen extends StatelessWidget {
-  static String routeName = "/category_listing";
+class BuyNowProductsScreen extends StatelessWidget {
+  static String routeName = "/buy_now_listing";
 
   @override
   Widget build(BuildContext context) {
-    final Object? args = ModalRoute.of(context)?.settings.arguments;
-    final Map<String, dynamic>? categoryData = args as Map<String, dynamic>?;
-
-    if (categoryData == null || categoryData['categoryName'] == null) {
-      return Text('No category is passing.');
-      // Handle the case where the category is not provided.
-      // You can show an error message or navigate to a default screen.
-    }
-    final String category = categoryData['categoryName'];
-
-    Future<List<QueryDocumentSnapshot>> fetchCategoryProducts(
-        String category) async {
-      print("Fetching products for category: $category");
+    Future<List<QueryDocumentSnapshot>> fetchBuyNowProducts() async {
+      print("Fetching fixed products.");
 
       final productQuery = await FirebaseFirestore.instance
           .collection('products')
-          .where('category', isEqualTo: category)
+          .where('isFixedPrice', isEqualTo: true) //filter the category product
+          .where('isSold', isEqualTo: false) //filter the sold product
           .get();
 
-      print("Category query result: ${productQuery.docs}");
+      print("Auction product query result: ${productQuery.docs}");
 
       return productQuery.docs;
     }
 
     return FutureBuilder<List<QueryDocumentSnapshot>>(
-      future: fetchCategoryProducts(category),
+      future: fetchBuyNowProducts(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -47,12 +36,12 @@ class CategoryProductsScreen extends StatelessWidget {
 
           return Scaffold(
               appBar: AppBar(
-                title: Text(
-                  category,
-                ),
+                backgroundColor: const Color.fromARGB(255, 197, 0, 0),
+                elevation: 5,
+                title: const Text('Buy Now Products'),
               ),
               body: products != null && products.isNotEmpty
-                  ? product_listing_widget(products)
+                  ? productListingWidget(products)
                   : const Center(
                       child: Text('No Products available.'),
                     ));
@@ -62,7 +51,7 @@ class CategoryProductsScreen extends StatelessWidget {
   }
 
   //widget to return product Listing
-  Widget product_listing_widget(List<QueryDocumentSnapshot> products) {
+  Widget productListingWidget(List<QueryDocumentSnapshot> products) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: GridView.builder(
@@ -76,7 +65,7 @@ class CategoryProductsScreen extends StatelessWidget {
 
           final product = Product.fromMap(productData, productData['id'] ?? '');
 
-          return ProductCard(product: product);
+          return FixedPriceProductCard(product: product);
         },
       ),
     );

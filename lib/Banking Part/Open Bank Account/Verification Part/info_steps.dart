@@ -48,7 +48,7 @@ class _StepsInfoScreenState extends State<StepsInfoScreen> {
   }
 
   Widget buildUIBasedOnStatus(String status, String id) {
-    if (status == 'Not Captured') {
+    if (status == 'Not done') {
       return Container(
         child: Container(
           height: MediaQuery.of(context).size.height,
@@ -153,7 +153,7 @@ class _StepsInfoScreenState extends State<StepsInfoScreen> {
           ),
         ),
       );
-    } else if (status == 'Captured') {
+    } else if (status == 'Done') {
       return Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
@@ -229,7 +229,7 @@ class _StepsInfoScreenState extends State<StepsInfoScreen> {
                               fontWeight: FontWeight.bold, fontSize: 23),
                         ),
                         Text(
-                            "You need to deposit a minimum of RM50.00 for activating your account.",
+                            "You need to deposit a minimum of RM20.00 for activating your account.",
                             style: TextStyle(fontSize: 13))
                       ],
                     ),

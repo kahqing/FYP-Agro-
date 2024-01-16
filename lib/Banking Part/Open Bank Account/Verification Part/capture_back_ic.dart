@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/ekyc_form_1.dart';
+import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/info_capture_face.dart';
 import 'package:agro_plus_app/Database/db.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,8 +33,10 @@ class _CaptureBackICScreenState extends State<CaptureBackICScreen> {
       await db.updateBackImage(id, backIC);
 
       // ignore: use_build_context_synchronously
-      Navigator.push(context,
-          CupertinoPageRoute(builder: (context) => EKYCFormScreen(id: id)));
+      Navigator.pushReplacement(
+          context,
+          CupertinoPageRoute(
+              builder: (context) => InfoCaptureFaceScreen(id: id)));
     } else {
       const snackBar = SnackBar(
         content: Text(
@@ -108,7 +111,7 @@ class _CaptureBackICScreenState extends State<CaptureBackICScreen> {
                                   borderRadius: BorderRadius.circular(8.0)),
                             ),
                             onPressed: () {
-                              getImage(ImageSource.gallery);
+                              getImage(ImageSource.camera);
                             },
                             child: Container(
                               margin: const EdgeInsets.symmetric(
@@ -151,7 +154,7 @@ class _CaptureBackICScreenState extends State<CaptureBackICScreen> {
                                   borderRadius: BorderRadius.circular(8.0)),
                             ),
                             onPressed: () {
-                              getImage(ImageSource.gallery);
+                              getImage(ImageSource.camera);
                             },
                             child: Container(
                                 margin: const EdgeInsets.symmetric(
@@ -190,19 +193,19 @@ class _CaptureBackICScreenState extends State<CaptureBackICScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Column(
-                  children: [
-                    Container(
-                      child: Text(
-                        "full text:" + scannedText + "\nic:" + scannedICNumBack,
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                    ),
-                  ],
-                )
+                // const SizedBox(
+                //   height: 20,
+                // ),
+                // Column(
+                //   children: [
+                //     Container(
+                //       child: Text(
+                //         "full text:" + scannedText + "\nic:" + scannedICNumBack,
+                //         style: const TextStyle(fontSize: 20),
+                //       ),
+                //     ),
+                //   ],
+                // )
               ],
             ),
           ),

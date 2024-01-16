@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/done_verification.dart';
+import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/ekyc_form_1.dart';
 import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/failed_verification.dart';
 import 'package:agro_plus_app/Database/db.dart';
 import 'package:flutter/cupertino.dart';
@@ -30,7 +31,7 @@ class _VerifyFaceScreenState extends State<VerifyFaceScreen> {
   }
 
   Future getImage2() async {
-    var image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    var image = await ImagePicker().pickImage(source: ImageSource.camera);
     if (image != null) {
       setState(() {
         imageFile2 = File(image.path);
@@ -49,7 +50,7 @@ class _VerifyFaceScreenState extends State<VerifyFaceScreen> {
 
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://192.168.100.11:5000/compare_faces'),
+      Uri.parse('http://10.206.50.247:5000/compare_faces'),
     );
 
     // Use the locally saved image for comparison
@@ -77,18 +78,24 @@ class _VerifyFaceScreenState extends State<VerifyFaceScreen> {
         if (match) {
           await db.updateStatusFace(id);
           // Faces matched, navigate to a success page
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-                builder: (context) => SuccessVerifyScreen(id: id)),
+            MaterialPageRoute(builder: (context) => EKYCFormScreen(id: id)),
           );
         } else {
           // Faces did not match, navigate to a failure page
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => FailedVerifiedScreen(id: id)),
+          const snackBar = SnackBar(
+            content: Text(
+              "Failed.",
+              style: TextStyle(color: Colors.black),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+            ),
+            backgroundColor: Color.fromARGB(255, 245, 179, 255),
           );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
       } else {
         // Print the full error message

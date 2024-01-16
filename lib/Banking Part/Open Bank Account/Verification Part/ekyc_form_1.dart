@@ -14,30 +14,48 @@ class EKYCFormScreen extends StatefulWidget {
 }
 
 class _EKYCFormScreenState extends State<EKYCFormScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   DateTime? selectedDate;
-  late Future<String> ic;
+  late Future<Map<String, String>> icFuture;
+  late Future<String> addressFuture;
+  String frontIC = '';
+  String name = '';
+  String addressLast = '';
   Database db = Database();
   TextEditingController icController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
   TextEditingController dateController = TextEditingController();
+  TextEditingController address1Controller = TextEditingController();
+  TextEditingController address2Controller = TextEditingController();
   Gender? selectedGender;
 
   @override
   void initState() {
     super.initState();
-    ic = db.getICNumFromFirestore(widget.id);
+    icFuture = db.getICNumAndNameAndAddressFromFirestore(widget.id);
+    addressFuture = db.getaddressLast(widget.id);
 
-    icController = TextEditingController(); // Initialize the controller
-    // Set the initial value if available (when the future is completed)
-    ic.then((value) {
-      icController.text = value ?? '';
+    // getAddress2();
+    icController = TextEditingController();
+    nameController = TextEditingController();
+    address2Controller = TextEditingController();
+
+    icFuture.then((icData) {
       setState(() {
-        selectedGender = getGenderFromIC(icController.text);
+        frontIC = icData['frontIC'] ?? '';
+        icController.text = frontIC;
+        name = icData['name'] ?? '';
+        nameController.text = name;
+        addressLast = icData['addressLat'] ?? '';
+        address2Controller.text = addressLast;
+        selectedGender = getGenderFromIC(frontIC);
       });
     });
 
-    ic.then((icNumber) {
-      if (icNumber != null && icNumber.length >= 6) {
-        String icPrefix = icNumber.substring(0, 6);
+    icFuture.then((icData) {
+      String frontIC = icData['frontIC'] ?? '';
+      if (frontIC.isNotEmpty && frontIC.length >= 6) {
+        String icPrefix = frontIC.substring(0, 6);
         int yearPrefix = int.parse(icPrefix.substring(0, 2));
         int year = (yearPrefix < 30) ? 2000 + yearPrefix : 1900 + yearPrefix;
         int month = int.parse(icPrefix.substring(2, 4));
@@ -50,6 +68,13 @@ class _EKYCFormScreenState extends State<EKYCFormScreen> {
     });
   }
 
+  Future<void> getAddress2() async {
+    String addressLast = await db.getaddressLast(widget.id);
+    setState(() {
+      address2Controller.text = addressLast;
+    });
+  }
+
   Gender getGenderFromIC(String ic) {
     int lastDigit = int.parse(ic.substring(ic.length - 1));
     return (lastDigit % 2 == 0) ? Gender.Female : Gender.Male;
@@ -59,9 +84,9 @@ class _EKYCFormScreenState extends State<EKYCFormScreen> {
     DateTime currentDate = DateTime.now();
     DateTime? initialDate = selectedDate ?? currentDate;
 
-    // Extract the first 6 characters from the IC number
-    String? icNumber = await ic;
-    String icPrefix = icNumber?.substring(0, 6) ?? '';
+    Map<String, String> icData = await icFuture;
+    String? frontIC = icData['frontIC'];
+    String icPrefix = frontIC?.substring(0, 6) ?? '';
 
     // Use the extracted IC prefix to set the initial date
     if (icPrefix.isNotEmpty) {
@@ -154,186 +179,277 @@ class _EKYCFormScreenState extends State<EKYCFormScreen> {
                     ),
                     SizedBox(height: 20),
                     Container(
-                      child: Column(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                  prefixIcon: Icon(
-                                    Icons.person_2_outlined,
-                                    color: Color.fromARGB(255, 91, 91, 91)
-                                        .withOpacity(0.7),
-                                  ),
-                                  labelStyle: TextStyle(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: TextFormField(
+                                // readOnly: true,
+                                controller: nameController,
+                                decoration: InputDecoration(
+                                    prefixIcon: Icon(
+                                      Icons.person_2_outlined,
                                       color: Color.fromARGB(255, 91, 91, 91)
-                                          .withOpacity(0.8)),
-                                  filled: true,
-                                  fillColor: Color.fromARGB(255, 255, 255, 255)
-                                      .withOpacity(0.2),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(30.0),
-                                    borderSide: const BorderSide(
-                                        width: 1, style: BorderStyle.none),
-                                  ),
-                                  labelText: "Full name as MyKad"),
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return "Please enter your username!";
-                                } else {
-                                  return null;
-                                }
-                              },
-                              // onChanged: (value) {
-                              //   setState(() {
-                              //     username = value;
-                              //   });
-                              // },
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            child: TextFormField(
-                              controller: icController,
-                              decoration: InputDecoration(
-                                  prefixIcon: Icon(
-                                    Icons.person_2_outlined,
-                                    color: Color.fromARGB(255, 91, 91, 91)
-                                        .withOpacity(0.7),
-                                  ),
-                                  labelStyle: TextStyle(
-                                      color: Color.fromARGB(255, 91, 91, 91)
-                                          .withOpacity(0.8)),
-                                  filled: true,
-                                  fillColor: Color.fromARGB(255, 255, 255, 255)
-                                      .withOpacity(0.2),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(30.0),
-                                    borderSide: const BorderSide(
-                                        width: 1, style: BorderStyle.none),
-                                  ),
-                                  labelText: "IC Number"),
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return "Please enter your IC Number!";
-                                } else {
-                                  return null;
-                                }
-                              },
-                              // onChanged: (value) {
-                              //   setState(() {
-                              //     username = value;
-                              //   });
-                              // },
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            child: TextFormField(
-                              onTap: () {
-                                _selectDate(context);
-                              },
-                              readOnly: true,
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.person_2_outlined,
-                                  color: Color.fromARGB(255, 91, 91, 91)
-                                      .withOpacity(0.7),
-                                ),
-                                labelStyle: TextStyle(
-                                  color: Color.fromARGB(255, 91, 91, 91)
-                                      .withOpacity(0.8),
-                                ),
-                                filled: true,
-                                fillColor: Color.fromARGB(255, 255, 255, 255)
-                                    .withOpacity(0.2),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: const BorderSide(
-                                      width: 1, style: BorderStyle.none),
-                                ),
-                                labelText: "Date of Birth",
+                                          .withOpacity(0.7),
+                                    ),
+                                    labelStyle: TextStyle(
+                                        color: Color.fromARGB(255, 91, 91, 91)
+                                            .withOpacity(0.8)),
+                                    filled: true,
+                                    fillColor:
+                                        Color.fromARGB(255, 255, 255, 255)
+                                            .withOpacity(0.2),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30.0),
+                                      borderSide: const BorderSide(
+                                          width: 1, style: BorderStyle.none),
+                                    ),
+                                    labelText: "Full name as MyKad"),
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return "Please enter your username!";
+                                  } else {
+                                    return null;
+                                  }
+                                },
+                                // onChanged: (value) {
+                                //   setState(() {
+                                //     username = value;
+                                //   });
+                                // },
                               ),
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return "Please enter your DOB!";
-                                } else {
-                                  return null;
-                                }
-                              },
-                              controller:
-                                  dateController, // Assign dateController
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
-                      child: DropdownButtonFormField(
-                        borderRadius: BorderRadius.circular(20),
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.person_2_outlined,
-                            color: Color.fromARGB(255, 91, 91, 91)
-                                .withOpacity(0.7),
-                          ),
-                          labelStyle: TextStyle(
-                            color: Color.fromARGB(255, 91, 91, 91)
-                                .withOpacity(0.8),
-                          ),
-                          filled: true,
-                          fillColor: Color.fromARGB(255, 255, 255, 255)
-                              .withOpacity(0.2),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                            borderSide: const BorderSide(
-                                width: 1, style: BorderStyle.none),
-                          ),
-                          labelText: "Gender",
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: TextFormField(
+                                readOnly: true,
+                                controller: icController,
+                                decoration: InputDecoration(
+                                    prefixIcon: Icon(
+                                      Icons.person_2_outlined,
+                                      color: Color.fromARGB(255, 91, 91, 91)
+                                          .withOpacity(0.7),
+                                    ),
+                                    labelStyle: TextStyle(
+                                        color: Color.fromARGB(255, 91, 91, 91)
+                                            .withOpacity(0.8)),
+                                    filled: true,
+                                    fillColor:
+                                        Color.fromARGB(255, 255, 255, 255)
+                                            .withOpacity(0.2),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30.0),
+                                      borderSide: const BorderSide(
+                                          width: 1, style: BorderStyle.none),
+                                    ),
+                                    labelText: "IC Number"),
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return "Please enter your IC Number!";
+                                  } else {
+                                    return null;
+                                  }
+                                },
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: TextFormField(
+                                onTap: () {
+                                  _selectDate(context);
+                                },
+                                readOnly: true,
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.person_2_outlined,
+                                    color: Color.fromARGB(255, 91, 91, 91)
+                                        .withOpacity(0.7),
+                                  ),
+                                  labelStyle: TextStyle(
+                                    color: Color.fromARGB(255, 91, 91, 91)
+                                        .withOpacity(0.8),
+                                  ),
+                                  filled: true,
+                                  fillColor: Color.fromARGB(255, 255, 255, 255)
+                                      .withOpacity(0.2),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: const BorderSide(
+                                        width: 1, style: BorderStyle.none),
+                                  ),
+                                  labelText: "Date of Birth",
+                                ),
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return "Please enter your DOB!";
+                                  } else {
+                                    return null;
+                                  }
+                                },
+                                controller: dateController,
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: DropdownButtonFormField(
+                                borderRadius: BorderRadius.circular(20),
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.person_2_outlined,
+                                    color: Color.fromARGB(255, 91, 91, 91)
+                                        .withOpacity(0.7),
+                                  ),
+                                  labelStyle: TextStyle(
+                                    color: Color.fromARGB(255, 91, 91, 91)
+                                        .withOpacity(0.8),
+                                  ),
+                                  filled: true,
+                                  fillColor: Color.fromARGB(255, 255, 255, 255)
+                                      .withOpacity(0.2),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: const BorderSide(
+                                        width: 1, style: BorderStyle.none),
+                                  ),
+                                  labelText: "Gender",
+                                ),
+                                value: selectedGender,
+                                items: <Gender>[
+                                  Gender.Male,
+                                  Gender.Female,
+                                ].map<DropdownMenuItem<Gender>>((Gender value) {
+                                  return DropdownMenuItem<Gender>(
+                                    value: value,
+                                    child: Text(value == Gender.Male
+                                        ? 'Male'
+                                        : 'Female'),
+                                  );
+                                }).toList(),
+                                onChanged: (Gender? value) {
+                                  setState(() {
+                                    selectedGender = value;
+                                  });
+                                },
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: TextFormField(
+                                controller: address1Controller,
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.person_2_outlined,
+                                    color: Color.fromARGB(255, 91, 91, 91)
+                                        .withOpacity(0.7),
+                                  ),
+                                  labelStyle: TextStyle(
+                                    color: Color.fromARGB(255, 91, 91, 91)
+                                        .withOpacity(0.8),
+                                  ),
+                                  filled: true,
+                                  fillColor: Color.fromARGB(255, 255, 255, 255)
+                                      .withOpacity(0.2),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: const BorderSide(
+                                        width: 1, style: BorderStyle.none),
+                                  ),
+                                  labelText: "Address line 1",
+                                ),
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return "Please enter your address!";
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: TextFormField(
+                                controller: address2Controller,
+                                decoration: InputDecoration(
+                                    prefixIcon: Icon(
+                                      Icons.person_2_outlined,
+                                      color: Color.fromARGB(255, 91, 91, 91)
+                                          .withOpacity(0.7),
+                                    ),
+                                    labelStyle: TextStyle(
+                                        color: Color.fromARGB(255, 91, 91, 91)
+                                            .withOpacity(0.8)),
+                                    filled: true,
+                                    fillColor:
+                                        Color.fromARGB(255, 255, 255, 255)
+                                            .withOpacity(0.2),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(30.0),
+                                      borderSide: const BorderSide(
+                                          width: 1, style: BorderStyle.none),
+                                    ),
+                                    labelText: "Address line 2"),
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return "Please enter your address!";
+                                  } else {
+                                    return null;
+                                  }
+                                },
+                                // onChanged: (value) {
+                                //   setState(() {
+                                //     username = value;
+                                //   });
+                                // },
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 20),
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color.fromARGB(
+                                          255, 160, 24, 14)),
+                                  onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      String fulladdress =
+                                          '${address1Controller.text} ${address2Controller.text}';
+
+                                      String genderString =
+                                          selectedGender.toString();
+                                      db.updateUserInfo1(
+                                          name,
+                                          dateController.text,
+                                          genderString,
+                                          fulladdress,
+                                          id);
+
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EKYCFormSreen2(
+                                                    id: id,
+                                                    ic: icController.text,
+                                                  )));
+                                    }
+                                  },
+                                  child: const Text(
+                                    "Next",
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                            )
+                          ],
                         ),
-                        value: selectedGender,
-                        items: <Gender>[
-                          Gender.Male,
-                          Gender.Female,
-                        ].map<DropdownMenuItem<Gender>>((Gender value) {
-                          return DropdownMenuItem<Gender>(
-                            value: value,
-                            child:
-                                Text(value == Gender.Male ? 'Male' : 'Female'),
-                          );
-                        }).toList(),
-                        onChanged: (Gender? value) {
-                          setState(() {
-                            selectedGender = value;
-                          });
-                        },
                       ),
                     ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 20),
-                      width: double.infinity,
-                      child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 160, 24, 14)),
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        EKYCFormSreen2(id: id)));
-                          },
-                          child: const Text(
-                            "Next",
-                            style: TextStyle(color: Colors.white),
-                          )),
-                    )
                   ],
                 ),
               ),

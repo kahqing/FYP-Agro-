@@ -1,16 +1,24 @@
+import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/ask_virtualcard.dart';
+import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/done_verification.dart';
 import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/info_capture_face.dart';
+import 'package:agro_plus_app/Banking%20Part/messages.dart';
+import 'package:agro_plus_app/Database/db.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class EKYCFormSreen2 extends StatefulWidget {
   final String id;
-  const EKYCFormSreen2({super.key, required this.id});
+  final String ic;
+  const EKYCFormSreen2({super.key, required this.id, required this.ic});
 
   @override
   State<EKYCFormSreen2> createState() => _EKYCFormSreen2State();
 }
 
 class _EKYCFormSreen2State extends State<EKYCFormSreen2> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  StatusMessage msg = StatusMessage();
+  Database db = Database();
   String? selectedReligion;
   List<String> religionOptions = [
     'Islam',
@@ -101,196 +109,200 @@ class _EKYCFormSreen2State extends State<EKYCFormSreen2> {
                     ),
                     SizedBox(height: 20),
                     Container(
-                      child: Column(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            child: DropdownButtonFormField(
-                              borderRadius: BorderRadius.circular(20),
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.person_2_outlined,
-                                  color: Color.fromARGB(255, 91, 91, 91)
-                                      .withOpacity(0.7),
-                                ),
-                                labelStyle: TextStyle(
-                                  color: Color.fromARGB(255, 91, 91, 91)
-                                      .withOpacity(0.8),
-                                ),
-                                filled: true,
-                                fillColor: Color.fromARGB(255, 255, 255, 255)
-                                    .withOpacity(0.2),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: const BorderSide(
-                                      width: 1, style: BorderStyle.none),
-                                ),
-                                labelText: "Race",
-                              ),
-                              value: selectedRace,
-                              items: raceOptions.map((String option) {
-                                return DropdownMenuItem(
-                                  value: option,
-                                  child: Text(option),
-                                );
-                              }).toList(),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  selectedReligion = value;
-                                });
-                              },
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Please choose a religion!";
-                                } else {
-                                  return null;
-                                }
-                              },
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            child: DropdownButtonFormField(
-                              borderRadius: BorderRadius.circular(20),
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.person_2_outlined,
-                                  color: Color.fromARGB(255, 91, 91, 91)
-                                      .withOpacity(0.7),
-                                ),
-                                labelStyle: TextStyle(
-                                  color: Color.fromARGB(255, 91, 91, 91)
-                                      .withOpacity(0.8),
-                                ),
-                                filled: true,
-                                fillColor: Color.fromARGB(255, 255, 255, 255)
-                                    .withOpacity(0.2),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: const BorderSide(
-                                      width: 1, style: BorderStyle.none),
-                                ),
-                                labelText: "Religion",
-                              ),
-                              value: selectedReligion,
-                              items: religionOptions.map((String option) {
-                                return DropdownMenuItem(
-                                  value: option,
-                                  child: Text(option),
-                                );
-                              }).toList(),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  selectedReligion = value;
-                                });
-                              },
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Please choose a religion!";
-                                } else {
-                                  return null;
-                                }
-                              },
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            child: DropdownButtonFormField(
-                              isExpanded: true,
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.person_2_outlined,
-                                  color: Color.fromARGB(255, 91, 91, 91)
-                                      .withOpacity(0.7),
-                                ),
-                                labelStyle: TextStyle(
-                                  color: Color.fromARGB(255, 91, 91, 91)
-                                      .withOpacity(0.8),
-                                ),
-                                filled: true,
-                                fillColor: Color.fromARGB(255, 255, 255, 255)
-                                    .withOpacity(0.2),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: const BorderSide(
-                                      width: 1, style: BorderStyle.none),
-                                ),
-                                labelText: "Marital Status",
-                              ),
-                              value: selectedMaritalStatus,
-                              items: maritalStatusOptions.map((String option) {
-                                return DropdownMenuItem(
-                                  value: option,
-                                  child: Text(
-                                    option,
-                                    style: TextStyle(fontSize: 16.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: DropdownButtonFormField(
+                                borderRadius: BorderRadius.circular(20),
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.person_2_outlined,
+                                    color: Color.fromARGB(255, 91, 91, 91)
+                                        .withOpacity(0.7),
                                   ),
-                                );
-                              }).toList(),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  selectedMaritalStatus = value;
-                                });
-                              },
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Please choose a marital status!";
-                                } else {
-                                  return null;
-                                }
-                              },
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            child: DropdownButtonFormField(
-                              borderRadius: BorderRadius.circular(20),
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.person_2_outlined,
-                                  color: Color.fromARGB(255, 91, 91, 91)
-                                      .withOpacity(0.7),
+                                  labelStyle: TextStyle(
+                                    color: Color.fromARGB(255, 91, 91, 91)
+                                        .withOpacity(0.8),
+                                  ),
+                                  filled: true,
+                                  fillColor: Color.fromARGB(255, 255, 255, 255)
+                                      .withOpacity(0.2),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: const BorderSide(
+                                        width: 1, style: BorderStyle.none),
+                                  ),
+                                  labelText: "Race",
                                 ),
-                                labelStyle: TextStyle(
-                                  color: Color.fromARGB(255, 91, 91, 91)
-                                      .withOpacity(0.8),
-                                ),
-                                filled: true,
-                                fillColor: Color.fromARGB(255, 255, 255, 255)
-                                    .withOpacity(0.2),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  borderSide: const BorderSide(
-                                      width: 1, style: BorderStyle.none),
-                                ),
-                                labelText: "Occupation",
+                                value: selectedRace,
+                                items: raceOptions.map((String option) {
+                                  return DropdownMenuItem(
+                                    value: option,
+                                    child: Text(option),
+                                  );
+                                }).toList(),
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    selectedRace = value;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Please choose a race!";
+                                  } else {
+                                    return null;
+                                  }
+                                },
                               ),
-                              value: selectedOccupation,
-                              items: occupationOptions.map((String option) {
-                                return DropdownMenuItem(
-                                  value: option,
-                                  child: Text(option),
-                                );
-                              }).toList(),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  selectedReligion = value;
-                                });
-                              },
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Please choose your occupation!";
-                                } else {
-                                  return null;
-                                }
-                              },
                             ),
-                          ),
-                        ],
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: DropdownButtonFormField(
+                                borderRadius: BorderRadius.circular(20),
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.person_2_outlined,
+                                    color: Color.fromARGB(255, 91, 91, 91)
+                                        .withOpacity(0.7),
+                                  ),
+                                  labelStyle: TextStyle(
+                                    color: Color.fromARGB(255, 91, 91, 91)
+                                        .withOpacity(0.8),
+                                  ),
+                                  filled: true,
+                                  fillColor: Color.fromARGB(255, 255, 255, 255)
+                                      .withOpacity(0.2),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: const BorderSide(
+                                        width: 1, style: BorderStyle.none),
+                                  ),
+                                  labelText: "Religion",
+                                ),
+                                value: selectedReligion,
+                                items: religionOptions.map((String option) {
+                                  return DropdownMenuItem(
+                                    value: option,
+                                    child: Text(option),
+                                  );
+                                }).toList(),
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    selectedReligion = value;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Please choose a religion!";
+                                  } else {
+                                    return null;
+                                  }
+                                },
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: DropdownButtonFormField(
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.person_2_outlined,
+                                    color: Color.fromARGB(255, 91, 91, 91)
+                                        .withOpacity(0.7),
+                                  ),
+                                  labelStyle: TextStyle(
+                                    color: Color.fromARGB(255, 91, 91, 91)
+                                        .withOpacity(0.8),
+                                  ),
+                                  filled: true,
+                                  fillColor: Color.fromARGB(255, 255, 255, 255)
+                                      .withOpacity(0.2),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: const BorderSide(
+                                        width: 1, style: BorderStyle.none),
+                                  ),
+                                  labelText: "Marital Status",
+                                ),
+                                value: selectedMaritalStatus,
+                                items:
+                                    maritalStatusOptions.map((String option) {
+                                  return DropdownMenuItem(
+                                    value: option,
+                                    child: Text(
+                                      option,
+                                      style: TextStyle(fontSize: 16.0),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    selectedMaritalStatus = value;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Please choose a marital status!";
+                                  } else {
+                                    return null;
+                                  }
+                                },
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: DropdownButtonFormField(
+                                borderRadius: BorderRadius.circular(20),
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.person_2_outlined,
+                                    color: Color.fromARGB(255, 91, 91, 91)
+                                        .withOpacity(0.7),
+                                  ),
+                                  labelStyle: TextStyle(
+                                    color: Color.fromARGB(255, 91, 91, 91)
+                                        .withOpacity(0.8),
+                                  ),
+                                  filled: true,
+                                  fillColor: Color.fromARGB(255, 255, 255, 255)
+                                      .withOpacity(0.2),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    borderSide: const BorderSide(
+                                        width: 1, style: BorderStyle.none),
+                                  ),
+                                  labelText: "Occupation",
+                                ),
+                                value: selectedOccupation,
+                                items: occupationOptions.map((String option) {
+                                  return DropdownMenuItem(
+                                    value: option,
+                                    child: Text(option),
+                                  );
+                                }).toList(),
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    selectedOccupation = value;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Please choose your occupation!";
+                                  } else {
+                                    return null;
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     Container(
@@ -302,11 +314,24 @@ class _EKYCFormSreen2State extends State<EKYCFormSreen2> {
                               backgroundColor:
                                   const Color.fromARGB(255, 160, 24, 14)),
                           onPressed: () {
-                            Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                    builder: (context) =>
-                                        InfoCaptureFaceScreen(id: id)));
+                            if (_formKey.currentState!.validate()) {
+                              db.updateUserInfo2(
+                                  id,
+                                  selectedRace,
+                                  selectedReligion,
+                                  selectedMaritalStatus,
+                                  selectedOccupation);
+
+                              db.updateStatusStep1(id);
+
+                              msg.showSuccessMessage("Save successfully!");
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AskVirtualCard(
+                                            id: id,
+                                          )));
+                            }
                           },
                           child: const Text(
                             "Next",

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/congrat.dart';
 import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/game_homepage.dart';
 import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Payment%20Part/payment_info.dart';
@@ -6,12 +7,13 @@ import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%
 import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/select_branch.dart';
 import 'package:agro_plus_app/Banking%20Part/Saving%20Goals/Bottom%20Navigation%20Bar/bottom_navi.dart';
 import 'package:agro_plus_app/Database/db.dart';
-
+import 'package:agro_plus_app/EC%20Part/screens/notification/winner_notification_screen.dart';
 import 'package:agro_plus_app/EC%20Part/screens/ec_main_screen/ec_main_screen.dart';
 import 'package:agro_plus_app/General%20Part/sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomepageScreen extends StatefulWidget {
   final String matric;
@@ -43,6 +45,27 @@ class _HomepageScreenState extends State<HomepageScreen> {
       }
     } catch (e) {
       return e.toString();
+    }
+  }
+
+  Future<void> _checkAndNavigate(BuildContext context) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final bool hasNotification = prefs.getBool('hasNotification') ?? false;
+    print('checked has notification: $hasNotification');
+
+    if (hasNotification) {
+      final String? messageJson = prefs.getString('notificationMessage');
+
+      if (messageJson != null) {
+        Map<String, dynamic> messageData = json.decode(messageJson);
+        // ignore: use_build_context_synchronously
+        Navigator.pushNamed(context, WinnerNotificationScreen.routeName,
+            arguments: {"message": json.encode(messageData)});
+      }
+
+      // Clear the notification flag and message from SharedPreferences
+      await prefs.setBool('hasNotification', false);
+      await prefs.remove('notificationMessage');
     }
   }
 

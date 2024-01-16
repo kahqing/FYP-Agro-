@@ -1,103 +1,85 @@
 import 'dart:io';
+import 'package:agro_plus_app/EC%20Part/models/auction.dart';
+import 'package:agro_plus_app/EC%20Part/models/product.dart';
 import 'package:agro_plus_app/EC%20Part/provider/product_provider.dart';
 import 'package:agro_plus_app/EC%20Part/screens/product_upload/form_handler.dart';
-import 'package:agro_plus_app/EC%20Part/screens/seller/seller_product_list.dart';
-import 'package:agro_plus_app/EC%20Part/screens/seller/seller_setting.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ProductUploadScreen extends StatefulWidget {
+class EditProductScreen extends StatefulWidget {
   static String routeName = '/upload_product';
   final String sellerId;
+  final Product? product;
+  final Auction? auction;
 
-  ProductUploadScreen({required this.sellerId});
+  const EditProductScreen({
+    required this.sellerId,
+    this.product,
+    this.auction,
+  });
 
   @override
-  State<ProductUploadScreen> createState() => _ProductUploadScreenState();
+  State<EditProductScreen> createState() => _EditProductScreenState();
 }
 
-class _ProductUploadScreenState extends State<ProductUploadScreen> {
-  Future<void> checkTaxAndDelivery() async {
-    try {
-      // Retrieve initial values directly from Firestore
-      final DocumentSnapshot sellerSnapshot = await FirebaseFirestore.instance
-          .collection('seller')
-          .doc(widget.sellerId)
-          .get();
+class _EditProductScreenState extends State<EditProductScreen> {
+  DateTime datepicked = DateTime.now();
+  TimeOfDay timepicked = TimeOfDay.now();
+  TextEditingController productNameController = TextEditingController();
+  TextEditingController brandController = TextEditingController();
+  TextEditingController modelController = TextEditingController();
+  TextEditingController productDescriptionController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
 
-      if (sellerSnapshot.exists) {
-        final data = sellerSnapshot.data() as Map<String, dynamic>;
-
-        if (!data.containsKey('tax') || !data.containsKey('deliveryFee')) {
-          // Show a dialog to prompt the seller to fill in tax and deliveryFee
-          // ignore: use_build_context_synchronously
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Tax and Delivery Fee Setup'),
-                content: const Text(
-                    'It seems you haven\'t set up tax and delivery fee. Please fill in before starting upload product.'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close the dialog
-                      // Navigate to SellerSettingScreen
-                      Navigator.pushNamed(
-                        context,
-                        SellerSettingScreen.routeName,
-                        arguments: widget.sellerId,
-                      );
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      }
-    } catch (error) {
-      // Handle errors
-      print('Error: $error');
-    }
-  }
+  late final formHandler =
+      FormHandler(ProductProvider(sellerId: widget.sellerId), isEditMode: true);
 
   @override
   void initState() {
     super.initState();
-    // Fetch initial values when the widget is initialized
-    checkTaxAndDelivery();
+
+    if (widget.product != null) {
+      productNameController.text = widget.product!.name;
+      productDescriptionController.text = widget.product!.description;
+      priceController.text = widget.product!.price.toString();
+
+      formHandler.productId = widget.product!.id;
+      formHandler.productName = widget.product!.name;
+      formHandler.brand = widget.product!.brand;
+      formHandler.model = widget.product!.model;
+      formHandler.productDescription = widget.product!.description;
+      formHandler.productType = widget.product!.isFixedPrice
+          ? ProductType.fixedPrice
+          : ProductType.auction;
+      formHandler.category = widget.product!.category;
+      formHandler.price = widget.product!.price;
+      formHandler.imgURL = widget.product!.image;
+      if (!widget.product!.isFixedPrice) {
+        formHandler.endTime = widget.auction!.endTime;
+        datepicked = formHandler.endTime;
+        timepicked = TimeOfDay.fromDateTime(datepicked);
+        formHandler.auctionId = widget.auction!.auctionId;
+      }
+    }
   }
-
-  DateTime datepicked = DateTime.now();
-  TimeOfDay timepicked = TimeOfDay.now();
-
-  late final formHandler = FormHandler(
-      ProductProvider(sellerId: widget.sellerId),
-      isEditMode: false);
 
   //function/logic to handle the form submission
   void submitForm() async {
-    final bool uploadStatus =
+    print('edit button is clicked');
+    final bool editStatus =
         await formHandler.submitForm(context, widget.sellerId);
 
     //if product is added successfully
-    if (uploadStatus) {
+    if (editStatus) {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Product is added successfully.'),
+          content: Text('Product is edited successfully.'),
         ),
       );
       //navigate back to seller dashboard
-      //Navigator.pop(context, true);
-
-      //navigate to seller product listing screen
       // ignore: use_build_context_synchronously
-      Navigator.pushReplacementNamed(context, SellerProductListScreen.routeName,
-          arguments: widget.sellerId);
+      Navigator.pop(context, true);
     } else {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
@@ -118,7 +100,7 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
         backgroundColor: const Color.fromARGB(255, 56, 38, 106),
         elevation: 5,
         title: const Text(
-          'Upload Product',
+          'Edit Product',
           style: TextStyle(color: Colors.white),
         ),
       ),
@@ -146,6 +128,8 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
                         formHandler.productName = value;
                       });
                     },
+                    controller: productNameController,
+                    enabled: true,
                   ),
                   _buildTextField(
                     labelText: 'Brand (optional)',
@@ -154,6 +138,8 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
                         formHandler.brand = value;
                       });
                     },
+                    controller: brandController,
+                    enabled: true,
                   ),
                   _buildTextField(
                     labelText: 'Model (optional)',
@@ -162,15 +148,19 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
                         formHandler.model = value;
                       });
                     },
+                    controller: modelController,
+                    enabled: true,
                   ),
                   _buildTextField(
-                    labelText: 'Product Description/Condition',
+                    labelText: 'Product Description',
                     onChanged: (value) {
                       setState(() {
                         formHandler.productDescription = value;
                       });
                     },
                     maxLines: 4,
+                    controller: productDescriptionController,
+                    enabled: true,
                   ),
                   _buildSellingTypeRadioButton(),
                   const SizedBox(height: 10),
@@ -187,11 +177,14 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
                         formHandler.price = double.tryParse(value) ?? 0.0;
                       });
                     },
+                    controller: priceController,
+                    enabled: true,
                   ),
                   _buildDropDownMenuCategory(),
                   Container(
                     margin:
                         const EdgeInsets.only(right: 10, left: 10, bottom: 15),
+                    //height: 300,
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: Colors.grey, // Color of the border
@@ -199,58 +192,38 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
                       ),
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    child: formHandler.image != null
-                        ? Column(
-                            children: [
-                              Image.file(
-                                formHandler.image!,
-                                height: 150,
-                                width: double.infinity,
-                              ),
-                              const SizedBox(height: 5),
-                              ElevatedButton(
-                                onPressed: showImagePickerDialog,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color.fromARGB(243, 155, 198, 255),
-                                  elevation: 3,
-                                ),
-                                child: const Text(
-                                  'Reupload Product Image',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        : Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const SizedBox(height: 10),
-                                Icon(
-                                  Icons.camera_alt_rounded,
-                                  color: Colors.grey[600],
-                                ),
-                                const SizedBox(height: 5),
-                                ElevatedButton(
-                                  onPressed: showImagePickerDialog,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color.fromARGB(
-                                        243, 155, 198, 255),
-                                    elevation: 3,
-                                  ),
-                                  child: const Text(
-                                    'Upload Product Image',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Display the current image
+                        if (formHandler.image != null)
+                          Image.file(formHandler.image!),
+                        if (formHandler.image == null &&
+                            formHandler.imgURL != null)
+                          Image.network(
+                            formHandler.imgURL!,
+                            //height: 150,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+
+                        // Provide a button to upload a new image
+                        ElevatedButton(
+                          onPressed: showImagePickerDialog,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(243, 155, 198, 255),
+                            elevation: 3,
+                          ),
+                          child: const Text(
+                            'Upload Product Image',
+                            style: TextStyle(
+                              color: Colors.black,
                             ),
                           ),
+                        ),
+                      ],
+                    ),
                   )
                 ]),
               ),
@@ -322,13 +295,17 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
     required ValueChanged<String> onChanged,
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
+    required TextEditingController controller,
+    bool enabled = true,
   }) {
     return Container(
       padding: const EdgeInsets.only(right: 10, left: 10, bottom: 15),
       child: TextField(
+        controller: controller,
         keyboardType: keyboardType,
         onChanged: onChanged,
         maxLines: maxLines,
+        enabled: enabled, //enable/disable to change the field
         decoration: InputDecoration(
           labelText: labelText,
           alignLabelWithHint: true,
@@ -412,6 +389,8 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
               title: const Text('Fixed Price'),
               contentPadding: EdgeInsets.zero,
               leading: Radio<bool>(
+                  // fillColor: MaterialStateColor.resolveWith(
+                  //     (states) => Colors.redAccent),
                   value: true,
                   groupValue: formHandler.productType == ProductType.fixedPrice,
                   onChanged: (bool? value) {
@@ -447,6 +426,9 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
   }
 
   Widget _buildDateTimeWidget(BuildContext context) {
+    DateTime endTime = formHandler.endTime;
+    print('End Time: $endTime');
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2.0),
       child: Material(
@@ -529,21 +511,23 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
     );
   }
 
+  //Date and time retrieved from firebase and display as initial value
   Future<DateTime?> pickDate() => showDatePicker(
         context: context,
-        initialDate: datepicked,
+        initialDate: formHandler.endTime,
         firstDate: datepicked,
         lastDate: DateTime(2100),
       );
 
-  Future<TimeOfDay?> pickTime() =>
-      showTimePicker(context: context, initialTime: timepicked);
+  Future<TimeOfDay?> pickTime() => showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(formHandler.endTime));
 
   Widget uploadProductButton() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: () async {
           submitForm();
         },
         style: ElevatedButton.styleFrom(
@@ -554,7 +538,7 @@ class _ProductUploadScreenState extends State<ProductUploadScreen> {
               borderRadius: BorderRadius.circular(30.0),
             )),
         child: const Text(
-          'Upload New Product',
+          'Edit Product',
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,

@@ -28,7 +28,7 @@ class Auction {
       productId: data['productId'] ?? '',
       sellerId: data['sellerId'],
       highestBid: (data['highestBid'] ?? 0.0).toDouble(),
-      status: data['productId'] ?? 'Start',
+      status: data['status'] ?? 'Start',
       endTime: (data['endTime'] as Timestamp).toDate(),
       startPrice: (data['startPrice'] ?? 0.0).toDouble(),
       bidderData: data['bidderData'] as Map<String, dynamic>?,

@@ -13,8 +13,9 @@ class BuyNowProductsScreen extends StatelessWidget {
 
       final productQuery = await FirebaseFirestore.instance
           .collection('products')
-          .where('isFixedPrice', isEqualTo: true) //filter the category product
-          .where('isSold', isEqualTo: false) //filter the sold product
+          .where('isFixedPrice',
+              isEqualTo: true) //filter the fixed price product
+          .where('isSold', isEqualTo: false) //filter the unsold product
           .get();
 
       print("Auction product query result: ${productQuery.docs}");
@@ -36,9 +37,19 @@ class BuyNowProductsScreen extends StatelessWidget {
 
           return Scaffold(
               appBar: AppBar(
+                iconTheme: const IconThemeData(
+                  color: Colors.white, //change your color here
+                ),
                 backgroundColor: const Color.fromARGB(255, 197, 0, 0),
                 elevation: 5,
-                title: const Text('Buy Now Products'),
+                title: const Text(
+                  'Buy Now Products',
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
               body: products != null && products.isNotEmpty
                   ? productListingWidget(products)
@@ -61,10 +72,10 @@ class BuyNowProductsScreen extends StatelessWidget {
         ),
         itemCount: products.length,
         itemBuilder: (context, index) {
-          final productData = products[index].data() as Map<String, dynamic>;
+          // final productData = products[index].data() as Map<String, dynamic>;
 
-          final product = Product.fromMap(productData, productData['id'] ?? '');
-
+          // final product = Product.fromMap(productData, productData['id'] ?? '');
+          final product = Product.fromSnapshot(products[index]);
           return FixedPriceProductCard(product: product);
         },
       ),

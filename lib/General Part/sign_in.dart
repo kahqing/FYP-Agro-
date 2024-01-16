@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:agro_plus_app/EC%20Part/provider/cart_provider.dart';
 import 'package:agro_plus_app/EC%20Part/provider/order_provider.dart';
-import 'package:agro_plus_app/EC%20Part/provider/product_provider.dart';
+import 'package:agro_plus_app/EC%20Part/screens/notification/winner_notification_screen.dart';
+import 'package:agro_plus_app/EC%20Part/screens/seller/seller_signin.dart';
 import 'package:agro_plus_app/General%20Part/home_page.dart';
 import 'package:agro_plus_app/General%20Part/sign_up.dart';
 import 'package:agro_plus_app/matric_storage.dart';
@@ -8,6 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   static String routeName = "/sign_in";
@@ -43,15 +47,19 @@ class _SignInScreenState extends State<SignInScreen> {
           await FirebaseMessaging.instance.requestPermission();
           final fcmToken = await firebaseMessaging.getToken();
           print('FCM Token: $fcmToken');
+          final CollectionReference ref =
+              FirebaseFirestore.instance.collection("user");
+          ref.doc(matric).update({
+            "fcmToken": fcmToken,
+          });
+
           // Pass matric to CartProvider
           Provider.of<CartProvider>(context, listen: false)
               .updateMatric(matric);
           // Pass matric to OrderProvider
           Provider.of<OrderProvider>(context, listen: false)
               .updateMatric(matric);
-          // Pass matric to ProductProvider
-          Provider.of<ProductProvider>(context, listen: false)
-              .updateMatric(matric);
+
           //update and save matric to sharedPreferences (matricStorage)
           MatricStorage().saveMatric(matric);
 
@@ -103,6 +111,27 @@ class _SignInScreenState extends State<SignInScreen> {
         backgroundColor: Color.fromARGB(255, 245, 179, 255),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  Future<void> _checkAndNavigate(BuildContext context) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final bool hasNotification = prefs.getBool('hasNotification') ?? false;
+    print('checkede has notification: $hasNotification');
+
+    if (hasNotification) {
+      final String? messageJson = prefs.getString('notificationMessage');
+
+      if (messageJson != null) {
+        Map<String, dynamic> messageData = json.decode(messageJson);
+        // ignore: use_build_context_synchronously
+        Navigator.pushNamed(context, WinnerNotificationScreen.routeName,
+            arguments: {"message": json.encode(messageData)});
+      }
+
+      // Clear the notification flag and message from SharedPreferences
+      await prefs.setBool('hasNotification', false);
+      await prefs.remove('notificationMessage');
     }
   }
 
@@ -181,17 +210,48 @@ class _SignInScreenState extends State<SignInScreen> {
                       },
                     ),
                   ),
-                  Container(
-                    alignment: Alignment.centerRight,
-                    margin:
-                        const EdgeInsets.only(bottom: 20, left: 20, right: 20),
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: const Text(
-                        "Forgot Password",
-                        style: TextStyle(color: Colors.white, fontSize: 13),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        alignment: Alignment.centerRight,
+                        margin: const EdgeInsets.only(
+                            bottom: 20, left: 20, right: 20),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              SellerSignInScreen.routeName,
+                            );
+                          },
+                          child: RichText(
+                            text: const TextSpan(
+                              style: TextStyle(fontSize: 14),
+                              children: <TextSpan>[
+                                TextSpan(text: 'Click for '),
+                                TextSpan(
+                                    text: 'Seller',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                TextSpan(text: ' Login'),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      Container(
+                        alignment: Alignment.centerRight,
+                        margin: const EdgeInsets.only(
+                            bottom: 20, left: 20, right: 20),
+                        child: GestureDetector(
+                          onTap: () {},
+                          child: const Text(
+                            "Forgot Password",
+                            style: TextStyle(color: Colors.white, fontSize: 13),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   Container(
                     width: MediaQuery.of(context).size.width,
@@ -239,7 +299,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                 fontWeight: FontWeight.bold)),
                       )
                     ],
-                  )
+                  ),
                 ],
               ),
             ),

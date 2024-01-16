@@ -1,7 +1,7 @@
-import 'package:agro_plus_app/EC%20Part/models/cart.dart';
+import 'package:agro_plus_app/EC%20Part/models/cartItem.dart';
 import 'package:agro_plus_app/EC%20Part/provider/cart_provider.dart';
 import 'package:agro_plus_app/EC%20Part/screens/ec_main_screen/ec_main_screen.dart';
-import 'package:agro_plus_app/EC%20Part/screens/payment/make_payment_screen.dart';
+import 'package:agro_plus_app/EC%20Part/screens/payment/prepare_checkout.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +16,13 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  List<Cart> demoCarts = [];
+  List<CartItem> demoCarts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<CartProvider>(context, listen: false).loadCartData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +53,7 @@ class _CartScreenState extends State<CartScreen> {
             //consumer widget to access item from cart provider
             builder: (context, cartProvider, child) {
               return Text(
-                "${cartProvider.cartList.length} items",
+                "${cartProvider.cartItemList.length} items",
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
@@ -77,9 +83,9 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  double calculateTotalPrice(List<Cart> cartList) {
+  double calculateTotalPrice(List<CartItem> cartItemList) {
     double total = 0.0;
-    for (final cart in cartList) {
+    for (final cart in cartItemList) {
       total += cart.price;
     }
     return total;
@@ -88,16 +94,15 @@ class _CartScreenState extends State<CartScreen> {
   Widget cartItem() {
     return Consumer<CartProvider>(
       builder: (context, cartProvider, child) {
-        cartProvider.loadCartData();
-        demoCarts = cartProvider.cartList;
+        demoCarts = cartProvider.cartItemList;
 
-        return Padding(
-          padding: const EdgeInsets.only(top: 15, left: 20, right: 20),
+        return Container(
+          color: const Color.fromARGB(255, 255, 237, 237),
           child: ListView.builder(
             itemCount: demoCarts.length,
             itemBuilder: (context, index) {
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.all(10),
                 child: Container(
                   decoration: BoxDecoration(
                     color: const Color.fromARGB(255, 255, 255, 255),
@@ -114,7 +119,7 @@ class _CartScreenState extends State<CartScreen> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: cart_card(cart: demoCarts[index]),
+                        child: cart_card(cartItem: demoCarts[index]),
                       ),
                       IconButton(
                         icon:
@@ -162,7 +167,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget cart_card({required Cart cart}) {
+  Widget cart_card({required CartItem cartItem}) {
     return Row(
       children: [
         SizedBox(
@@ -171,7 +176,7 @@ class _CartScreenState extends State<CartScreen> {
             aspectRatio: 0.88,
             child: Container(
               padding: const EdgeInsets.all(10),
-              child: Image.network(cart.image),
+              child: Image.network(cartItem.image),
             ),
           ),
         ),
@@ -180,7 +185,7 @@ class _CartScreenState extends State<CartScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              cart.productName,
+              cartItem.productName,
               style: const TextStyle(
                 color: Colors.black,
                 fontSize: 18,
@@ -190,14 +195,14 @@ class _CartScreenState extends State<CartScreen> {
             const SizedBox(height: 10),
             Text.rich(
               TextSpan(
-                text: "RM${cart.price.toStringAsFixed(2)}",
+                text: "RM${cartItem.price.toStringAsFixed(2)}",
                 style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Color.fromARGB(255, 179, 52, 6)),
                 children: [
                   TextSpan(
-                    text: "   x${cart.numOfItem}",
+                    text: "   x${cartItem.numOfItem}",
                     //style: Theme.of(context).textTheme.bodyText1
                   ),
                 ],
@@ -211,7 +216,11 @@ class _CartScreenState extends State<CartScreen> {
 
   Widget checkoutCard() {
     return Consumer<CartProvider>(builder: (context, cartProvider, child) {
-      demoCarts = cartProvider.cartList;
+      demoCarts = cartProvider.cartItemList;
+      if (demoCarts.isEmpty) {
+        demoCarts = cartProvider.cartItemList;
+      }
+      //print('DemoCarts: $demoCarts');
       double total = calculateTotalPrice(demoCarts);
       return Container(
         padding: const EdgeInsets.symmetric(
@@ -268,8 +277,8 @@ class _CartScreenState extends State<CartScreen> {
                             MaterialPageRoute(
                                 builder: (context) => CheckoutScreen(
                                     matric: cartProvider.matric,
-                                    cartItem: demoCarts,
-                                    totalPrice: total)));
+                                    cartItem: cartProvider.cartItemList,
+                                    subtotal: total)));
                       },
                       style: ButtonStyle(
                         minimumSize: MaterialStateProperty.all<Size>(

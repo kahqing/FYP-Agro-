@@ -1,9 +1,11 @@
 import 'package:agro_plus_app/EC Part/models/product.dart';
-import 'package:agro_plus_app/EC Part/screens/detail/detail_screen.dart';
+import 'package:agro_plus_app/EC%20Part/screens/detail/fixed_price_detail_screen.dart';
+import 'package:agro_plus_app/config.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class FixedPriceProductCard extends StatelessWidget {
-  const FixedPriceProductCard({
+  FixedPriceProductCard({
     Key? key,
     this.width = 175, // Increase the width value to your desired size
     this.aspectRatio = 0.9, // Adjust the aspect ratio as needed
@@ -12,6 +14,7 @@ class FixedPriceProductCard extends StatelessWidget {
 
   final double width, aspectRatio;
   final Product product;
+  String apiUrl = AppConfig.apiHostname;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +26,24 @@ class FixedPriceProductCard extends StatelessWidget {
       child: SizedBox(
         width: width,
         child: GestureDetector(
-          onTap: () {
+          onTap: () async {
+            print("product id: ");
+            print(product.id);
+            final response = await http.post(
+              Uri.parse('${AppConfig.apiHostname}incrementClicks'),
+              body: {
+                'productId': product.id
+              }, // Pass the product ID or any necessary data
+            );
+
+            if (response.statusCode == 200) {
+              // Successfully incremented click counter on the backend
+              print('Successfully increment click counter');
+            } else {
+              // Handle error
+              print('Failed to increment click counter on the backend.');
+            }
+            // ignore: use_build_context_synchronously
             Navigator.pushNamed(context, DetailsScreen.routeName,
                 arguments: ProductDetailsArguments(product: product));
           },

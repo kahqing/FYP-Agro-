@@ -10,11 +10,11 @@ class Product {
   final bool isFixedPrice;
   final DateTime createdDate;
   final bool isSold; // true for sold out
-  final String sellerUserId;
-
-  //final DocumentReference sellerRef;
+  final String sellerId;
 
   Map<String, dynamic>? sellerData;
+  final String? brand;
+  final String? model;
 
   Product({
     required this.id,
@@ -24,10 +24,12 @@ class Product {
     required this.category,
     required this.description,
     required this.isFixedPrice,
-    required this.sellerUserId,
+    required this.sellerId,
     required this.createdDate,
     required this.isSold,
     this.sellerData,
+    this.brand,
+    this.model,
   });
 
   //factory method to take DocumentSnapshot and convert to object
@@ -45,7 +47,9 @@ class Product {
       isFixedPrice: data['isFixedPrice'] ?? true,
       isSold: data['isSold'] ?? false,
       createdDate: (data['createdDate'] as Timestamp).toDate(),
-      sellerUserId: data['sellerUserId'] ?? '',
+      sellerId: data['sellerId'] ?? '',
+      brand: data['brand'] ?? '',
+      model: data['model'] ?? '',
     );
   }
 
@@ -62,20 +66,18 @@ class Product {
       isFixedPrice: map['isFixedPrice'] ?? true,
       isSold: map['isSold'] ?? false,
       createdDate: (map['createdDate'] as Timestamp).toDate(),
-      sellerUserId: map['sellerUserId'] ?? '',
+      sellerId: map['sellerId'] ?? '',
+      brand: map['brand'] ?? '',
+      model: map['model'] ?? '',
     );
   }
 
-//method to fetch user Data from firebase and set the user data
-  Future<void> fetchUserData() async {
-    // final sellerDoc = await sellerRef.get();
-    // if (sellerDoc.exists) {
-    //   sellerData = sellerDoc.data() as Map<String, dynamic>;
-    // }
+  //method to fetch seller Data from firebase and set the seller data (used in detail screen)
+  Future<void> fetchSellerData() async {
     try {
       final userQuery = await FirebaseFirestore.instance
-          .collection('user')
-          .where('matric', isEqualTo: sellerUserId)
+          .collection('seller')
+          .where('sellerId', isEqualTo: sellerId)
           .get();
 
       if (userQuery.docs.isNotEmpty) {
@@ -84,7 +86,7 @@ class Product {
         sellerData = userDoc.data() as Map<String, dynamic>;
       } else {
         // Handle the case where no document is found for the given 'matric'
-        print('User document not found for matric: $sellerUserId');
+        print('User document not found for matric: $sellerId');
       }
     } catch (e) {
       // Handle any errors that might occur during the fetch

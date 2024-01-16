@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/game_homepage.dart';
 import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Payment%20Part/payment_info.dart';
 import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/ekyc_form_1.dart';
@@ -11,6 +13,7 @@ import 'package:agro_plus_app/General%20Part/sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomepageScreen extends StatefulWidget {
   final String matric;

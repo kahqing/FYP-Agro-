@@ -116,7 +116,10 @@ class ECMainScreen extends StatelessWidget {
                                   (Route<dynamic> route) => false,
                                 );
                               },
-                              child: const Text('Log Out'),
+                              child: const Text(
+                                'Log Out',
+                                style: TextStyle(color: Colors.red),
+                              ),
                             ),
                           ],
                         );

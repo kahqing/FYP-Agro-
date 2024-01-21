@@ -199,7 +199,7 @@ class ProductProvider with ChangeNotifier {
     try {
       final response = await http.delete(
         Uri.parse(
-            '${AppConfig.apiHostname}delete-products/productId/$productId'),
+            '${AppConfig.apiHostname}delete-product/productId/$productId'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           // Add any additional headers as needed

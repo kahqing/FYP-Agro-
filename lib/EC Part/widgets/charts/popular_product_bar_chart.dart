@@ -128,7 +128,7 @@ class _PopularProductStatsBarChartState
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(
-                  top: 10, bottom: 10, left: 30, right: 20),
+                  top: 10, bottom: 10, left: 20, right: 20),
               child: BarChart(
                 swapAnimationDuration:
                     const Duration(milliseconds: 150), // Optional

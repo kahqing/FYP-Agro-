@@ -137,9 +137,9 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
-                                    return Text(
+                                    return const Text(
                                       "Hello, Loading...",
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 30,
                                       ),
@@ -171,7 +171,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
                             ],
                           ),
                           IconButton(
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.logout,
                               color: Colors.white,
                             ),
@@ -180,8 +180,8 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    title: Text('Confirm Logout'),
-                                    content: Text(
+                                    title: const Text('Confirm Logout'),
+                                    content: const Text(
                                         'Are you sure you want to logout?'),
                                     actions: [
                                       TextButton(
@@ -189,7 +189,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                           Navigator.of(context)
                                               .pop(); // Close the dialog
                                         },
-                                        child: Text('Cancel'),
+                                        child: const Text('Cancel'),
                                       ),
                                       TextButton(
                                         onPressed: () {
@@ -201,7 +201,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
                                               ),
                                               (route) => false);
                                         },
-                                        child: Text(
+                                        child: const Text(
                                           'Logout',
                                           style: TextStyle(color: Colors.red),
                                         ),

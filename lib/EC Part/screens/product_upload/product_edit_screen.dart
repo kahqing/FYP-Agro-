@@ -3,6 +3,7 @@ import 'package:agro_plus_app/EC%20Part/models/auction.dart';
 import 'package:agro_plus_app/EC%20Part/models/product.dart';
 import 'package:agro_plus_app/EC%20Part/provider/product_provider.dart';
 import 'package:agro_plus_app/EC%20Part/screens/product_upload/form_handler.dart';
+import 'package:agro_plus_app/EC%20Part/screens/seller/seller_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -77,7 +78,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           content: Text('Product is edited successfully.'),
         ),
       );
-      //navigate back to seller dashboard
+      //navigate back to seller menu
       // ignore: use_build_context_synchronously
       Navigator.pop(context, true);
     } else {

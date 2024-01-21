@@ -8,7 +8,7 @@ class CheckOutScreenContent extends StatelessWidget {
   final String userName;
   final String contactNum;
   final double totalPrice;
-  final Future<void> Function() onMakePaymentPressed;
+  final Future<void> Function(String address) onMakePaymentPressed;
 
   final List<SellerGroup> sellerGroupData;
 
@@ -245,7 +245,7 @@ class CheckOutScreenContent extends StatelessWidget {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(
           vertical: 20,
-          horizontal: 30,
+          horizontal: 15,
         ),
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 171, 10, 10),
@@ -298,8 +298,9 @@ class CheckOutScreenContent extends StatelessWidget {
 
                         // If payment was confirmed, invoke onMakePaymentPressed
                         if (result != null) {
+                          print(userAddress);
                           // If payment was confirmed, invoke onMakePaymentPressed
-                          await onMakePaymentPressed();
+                          await onMakePaymentPressed(userAddress);
                         }
                       },
                       style: ButtonStyle(

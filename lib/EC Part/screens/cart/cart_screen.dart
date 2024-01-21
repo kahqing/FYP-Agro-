@@ -225,7 +225,7 @@ class _CartScreenState extends State<CartScreen> {
       return Container(
         padding: const EdgeInsets.symmetric(
           vertical: 20,
-          horizontal: 30,
+          horizontal: 15,
         ),
         // height: 174,
         decoration: BoxDecoration(

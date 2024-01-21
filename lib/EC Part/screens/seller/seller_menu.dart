@@ -33,6 +33,12 @@ class _SellerMenuScreenState extends State<SellerMenuScreen> {
   int soldOut = 0;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    loadSellerProductStats();
+  }
+
+  @override
   void initState() {
     super.initState();
     loadSellerDetails();

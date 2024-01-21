@@ -202,10 +202,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               contactNum: contactNum,
               totalPrice: calculateTotalPrice(),
               sellerGroupData: sellerGroups,
-              onMakePaymentPressed: () async {
+              onMakePaymentPressed: (String address) async {
+                print(address);
                 PaymentService paymentService = PaymentService();
-                await paymentService.initiatePayment(context, widget.matric,
-                    sellerGroups, widget.cartItem, orderProvider, totalPrice);
+                await paymentService.initiatePayment(
+                    context,
+                    widget.matric,
+                    address,
+                    sellerGroups,
+                    widget.cartItem,
+                    orderProvider,
+                    totalPrice);
               });
         } else {
           return const Text('Failed to fetch data');

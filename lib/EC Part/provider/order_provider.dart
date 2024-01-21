@@ -187,7 +187,7 @@ class OrderProvider extends ChangeNotifier {
   // }
 
   Future<Map<String, String>> processOrder(
-      List<SellerGroup> sellerGroups) async {
+      List<SellerGroup> sellerGroups, String address) async {
     try {
       final response = await http.post(
         Uri.parse('${AppConfig.apiHostname}process-order'),
@@ -205,6 +205,7 @@ class OrderProvider extends ChangeNotifier {
                   })
               .toList(),
           'buyerId': matric,
+          'deliveryAddress': address,
           //'totalPrice': totalPrice,
         }),
       );

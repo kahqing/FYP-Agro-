@@ -286,7 +286,7 @@ class _AuctionProductDetailScreenState
         ),
         body: Container(
           color: const Color.fromARGB(255, 255, 237, 237),
-          margin: const EdgeInsets.symmetric(vertical: 16.0),
+          padding: const EdgeInsets.only(top: 16.0),
           child: isLoading
               ? const Center(child: CircularProgressIndicator())
               : ListView(

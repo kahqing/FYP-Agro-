@@ -1,5 +1,6 @@
 import 'package:agro_plus_app/EC%20Part/models/auction.dart';
 import 'package:agro_plus_app/EC%20Part/screens/product_upload/product_edit_screen.dart';
+import 'package:agro_plus_app/EC%20Part/screens/seller/seller_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:agro_plus_app/EC Part/provider/product_provider.dart';
@@ -21,6 +22,22 @@ class SellerProductListScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              // Replace the code below with the desired behavior
+              // Navigate to the seller menu or any other screen
+              // Navigate to the Seller Menu and replace the current route
+              Navigator.pushReplacementNamed(
+                      context, SellerMenuScreen.routeName,
+                      arguments: sellerId)
+                  .then((_) {
+                // Remove all routes from the stack until reaching the Seller Menu
+                Navigator.popUntil(
+                    context, ModalRoute.withName(SellerMenuScreen.routeName));
+              });
+            },
+          ),
           iconTheme: const IconThemeData(
             color: Colors.white,
           ),

@@ -88,34 +88,35 @@ class CategoryProductsScreen extends StatelessWidget {
                 ),
               ),
               body: SingleChildScrollView(
-                child: SizedBox(
+                child: Container(
+                  color: const Color.fromARGB(255, 255, 237, 237),
                   height: MediaQuery.of(context).size.height,
                   child: Column(
                     children: [
                       Container(
-                        height: 70, // Adjust the height as needed
+                        //height: 70, // Adjust the height as needed
                         margin: const EdgeInsets.all(10.0),
                         padding: const EdgeInsets.all(10.0),
                         decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                              colors: [
-                                Color.fromARGB(243, 251, 198, 149),
-                                Color.fromARGB(255, 251, 171, 207),
-                              ]),
+                          // gradient: LinearGradient(
+                          //     begin: Alignment.bottomCenter,
+                          //     end: Alignment.topCenter,
+                          //     colors: [
+                          //       Color.fromARGB(243, 251, 198, 149),
+                          //       Color.fromARGB(255, 251, 171, 207),
+                          //     ]),
                           //color: Color.fromARGB(255, 255, 193, 216),
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                           // borderRadius: BorderRadius.only(
                           //     bottomLeft: Radius.circular(10),
                           //     bottomRight: Radius.circular(10)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey,
-                              offset: Offset(0, 2),
-                              blurRadius: 6,
-                            ),
-                          ],
+                          // boxShadow: [
+                          //   BoxShadow(
+                          //     color: Colors.grey,
+                          //     offset: Offset(0, 2),
+                          //     blurRadius: 6,
+                          //   ),
+                          //],
                         ),
                         alignment: Alignment.center,
                         child: Row(

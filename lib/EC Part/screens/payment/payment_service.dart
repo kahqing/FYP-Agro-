@@ -15,6 +15,7 @@ class PaymentService {
   Future<void> initiatePayment(
       BuildContext context,
       String matric,
+      String address,
       List<SellerGroup> sellerGroups,
       List<CartItem> cartItem,
       OrderProvider orderProvider,
@@ -46,7 +47,7 @@ class PaymentService {
 
         //return a map of key is sellerid and value is order id
         Map<String, String> sellerOrderMap =
-            await orderProvider.processOrder(sellerGroups);
+            await orderProvider.processOrder(sellerGroups, address);
 
         if (sellerOrderMap != null && sellerOrderMap.isNotEmpty) {
           print(sellerOrderMap);

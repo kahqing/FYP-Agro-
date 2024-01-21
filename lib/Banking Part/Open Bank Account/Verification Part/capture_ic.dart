@@ -69,7 +69,7 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
     }
   }
 
-  Future updateFrontImage(id, name, frontIC, addressLast, ic) async {
+  Future updateFrontImage(id, name, frontIC, ic) async {
     final DocumentReference documentReference =
         FirebaseFirestore.instance.collection('user').doc(id);
 
@@ -77,7 +77,6 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
       'frontIC': frontIC,
       'ic': ic,
       'name': name,
-      'addressLat': addressLast,
       'statusFront': "Captured",
     };
 
@@ -250,17 +249,13 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
                                       scannedText
                                           .toLowerCase()
                                           .contains("kadpengenalan")) {
-                                    String addressLast =
-                                        "$scannedposcode ${states.join(", ")}";
+                                    // String addressLast =
+                                    //     "$scannedposcode ${states.join(", ")}";
                                     imageUrl = await uploadImageToStorage(
                                         File(imageFile!.path), id);
 
-                                    await updateFrontImage(
-                                        id,
-                                        username,
-                                        imageUrl,
-                                        addressLast,
-                                        scannedICNumFront);
+                                    await updateFrontImage(id, username,
+                                        imageUrl, scannedICNumFront);
 
                                     msg.showSuccessMessage("Valid IC!");
 

@@ -73,8 +73,7 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen> {
                           db.deleteGoal(
                               widget.id, widget.category, widget.title);
 
-                          msg.showSuccessMessage(
-                              "Delete Successfully! Please click Back button.");
+                          msg.showSuccessMessage("Delete Successfully!");
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(

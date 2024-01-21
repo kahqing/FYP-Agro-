@@ -396,8 +396,9 @@ class _HomepageScreenState extends State<HomepageScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      SuccessWithdrawScreen()));
+                                  builder: (context) => EKYCFormScreen(
+                                        id: widget.matric,
+                                      )));
                         },
                         child:
                             // Container(

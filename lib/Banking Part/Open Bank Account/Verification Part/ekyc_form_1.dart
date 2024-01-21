@@ -26,19 +26,19 @@ class _EKYCFormScreenState extends State<EKYCFormScreen> {
   TextEditingController nameController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   TextEditingController address1Controller = TextEditingController();
-  TextEditingController address2Controller = TextEditingController();
+
   Gender? selectedGender;
 
   @override
   void initState() {
     super.initState();
     icFuture = db.getICNumAndNameAndAddressFromFirestore(widget.id);
-    addressFuture = db.getaddressLast(widget.id);
+    // addressFuture = db.getAddress(widget.id);
+    getAddress();
 
-    // getAddress2();
     icController = TextEditingController();
     nameController = TextEditingController();
-    address2Controller = TextEditingController();
+    address1Controller = TextEditingController();
 
     icFuture.then((icData) {
       setState(() {
@@ -46,8 +46,8 @@ class _EKYCFormScreenState extends State<EKYCFormScreen> {
         icController.text = frontIC;
         name = icData['name'] ?? '';
         nameController.text = name;
-        addressLast = icData['addressLat'] ?? '';
-        address2Controller.text = addressLast;
+        // addressLast = icData['addressLat'] ?? '';
+        // address2Controller.text = addressLast;
         selectedGender = getGenderFromIC(frontIC);
       });
     });
@@ -68,10 +68,10 @@ class _EKYCFormScreenState extends State<EKYCFormScreen> {
     });
   }
 
-  Future<void> getAddress2() async {
-    String addressLast = await db.getaddressLast(widget.id);
+  Future<void> getAddress() async {
+    String addressLast = await db.getAddress(widget.id);
     setState(() {
-      address2Controller.text = addressLast;
+      address1Controller.text = addressLast;
     });
   }
 
@@ -230,7 +230,7 @@ class _EKYCFormScreenState extends State<EKYCFormScreen> {
                                 controller: icController,
                                 decoration: InputDecoration(
                                     prefixIcon: Icon(
-                                      Icons.person_2_outlined,
+                                      Icons.person_2,
                                       color: Color.fromARGB(255, 91, 91, 91)
                                           .withOpacity(0.7),
                                     ),
@@ -266,7 +266,7 @@ class _EKYCFormScreenState extends State<EKYCFormScreen> {
                                 readOnly: true,
                                 decoration: InputDecoration(
                                   prefixIcon: Icon(
-                                    Icons.person_2_outlined,
+                                    Icons.date_range_outlined,
                                     color: Color.fromARGB(255, 91, 91, 91)
                                         .withOpacity(0.7),
                                   ),
@@ -301,7 +301,7 @@ class _EKYCFormScreenState extends State<EKYCFormScreen> {
                                 borderRadius: BorderRadius.circular(20),
                                 decoration: InputDecoration(
                                   prefixIcon: Icon(
-                                    Icons.person_2_outlined,
+                                    Icons.person,
                                     color: Color.fromARGB(255, 91, 91, 91)
                                         .withOpacity(0.7),
                                   ),
@@ -361,7 +361,7 @@ class _EKYCFormScreenState extends State<EKYCFormScreen> {
                                     borderSide: const BorderSide(
                                         width: 1, style: BorderStyle.none),
                                   ),
-                                  labelText: "Address line 1",
+                                  labelText: "Address",
                                 ),
                                 validator: (value) {
                                   if (value!.isEmpty) {
@@ -369,44 +369,6 @@ class _EKYCFormScreenState extends State<EKYCFormScreen> {
                                   }
                                   return null;
                                 },
-                              ),
-                            ),
-                            Container(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              child: TextFormField(
-                                controller: address2Controller,
-                                decoration: InputDecoration(
-                                    prefixIcon: Icon(
-                                      Icons.person_2_outlined,
-                                      color: Color.fromARGB(255, 91, 91, 91)
-                                          .withOpacity(0.7),
-                                    ),
-                                    labelStyle: TextStyle(
-                                        color: Color.fromARGB(255, 91, 91, 91)
-                                            .withOpacity(0.8)),
-                                    filled: true,
-                                    fillColor:
-                                        Color.fromARGB(255, 255, 255, 255)
-                                            .withOpacity(0.2),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(30.0),
-                                      borderSide: const BorderSide(
-                                          width: 1, style: BorderStyle.none),
-                                    ),
-                                    labelText: "Address line 2"),
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return "Please enter your address!";
-                                  } else {
-                                    return null;
-                                  }
-                                },
-                                // onChanged: (value) {
-                                //   setState(() {
-                                //     username = value;
-                                //   });
-                                // },
                               ),
                             ),
                             Container(
@@ -419,8 +381,8 @@ class _EKYCFormScreenState extends State<EKYCFormScreen> {
                                           255, 160, 24, 14)),
                                   onPressed: () {
                                     if (_formKey.currentState!.validate()) {
-                                      String fulladdress =
-                                          '${address1Controller.text} ${address2Controller.text}';
+                                      // String fulladdress =
+                                      //     '${address1Controller.text} ${address2Controller.text}';
 
                                       String genderString =
                                           selectedGender.toString();
@@ -428,7 +390,7 @@ class _EKYCFormScreenState extends State<EKYCFormScreen> {
                                           name,
                                           dateController.text,
                                           genderString,
-                                          fulladdress,
+                                          address1Controller.text,
                                           id);
 
                                       Navigator.push(

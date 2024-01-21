@@ -57,7 +57,7 @@ class _VerifyFaceScreenState extends State<VerifyFaceScreen> {
 
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://10.105.15.164:5000/compare_faces'),
+      Uri.parse('http://10.105.8.223:5000/compare_faces'),
     );
 
     // Use the locally saved image for comparison
@@ -90,19 +90,20 @@ class _VerifyFaceScreenState extends State<VerifyFaceScreen> {
             MaterialPageRoute(builder: (context) => EKYCFormScreen(id: id)),
           );
         } else {
-          // Faces did not match, navigate to a failure page
-          const snackBar = SnackBar(
-            content: Text(
-              "Failed.",
-              style: TextStyle(color: Colors.black),
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-            ),
-            backgroundColor: Color.fromARGB(255, 245, 179, 255),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          msg.showUnsuccessMessage("Face does not match.");
+
+          // const snackBar = SnackBar(
+          //   content: Text(
+          //     "Failed.",
+          //     style: TextStyle(color: Colors.black),
+          //   ),
+          //   shape: RoundedRectangleBorder(
+          //     borderRadius: BorderRadius.only(
+          //         topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+          //   ),
+          //   backgroundColor: Color.fromARGB(255, 245, 179, 255),
+          // );
+          // ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
       } else {
         // Print the full error message

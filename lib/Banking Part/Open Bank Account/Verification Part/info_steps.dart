@@ -86,9 +86,20 @@ class _StepsInfoScreenState extends State<StepsInfoScreen> {
                             Color.fromARGB(255, 255, 255, 255).withOpacity(0.9),
                         borderRadius: BorderRadius.all(Radius.circular(20)),
                       ),
-                      child: const Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 5, top: 5),
+                            child: Text(
+                              "First Step",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  color: Color.fromARGB(255, 0, 0, 0)),
+                            ),
+                          ),
+                          Divider(),
                           Text(
                             "Identity Verification",
                             style: TextStyle(
@@ -111,9 +122,22 @@ class _StepsInfoScreenState extends State<StepsInfoScreen> {
                             Color.fromARGB(255, 163, 163, 163).withOpacity(0.9),
                         borderRadius: BorderRadius.all(Radius.circular(20)),
                       ),
-                      child: const Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 5, top: 5),
+                            child: Text(
+                              "Second Step",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  color: Color.fromARGB(255, 70, 70, 70)),
+                            ),
+                          ),
+                          Divider(
+                            color: const Color.fromARGB(255, 101, 101, 101),
+                          ),
                           Text(
                             "Payment for Initial Deposit",
                             style: TextStyle(
@@ -191,9 +215,22 @@ class _StepsInfoScreenState extends State<StepsInfoScreen> {
                           Color.fromARGB(255, 152, 152, 152).withOpacity(0.9),
                       borderRadius: BorderRadius.all(Radius.circular(20)),
                     ),
-                    child: const Column(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 5, top: 5),
+                          child: Text(
+                            "First Step",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: Color.fromARGB(255, 70, 70, 70)),
+                          ),
+                        ),
+                        Divider(
+                          color: const Color.fromARGB(255, 101, 101, 101),
+                        ),
                         Text(
                           "Identity Verification",
                           style: TextStyle(
@@ -220,9 +257,20 @@ class _StepsInfoScreenState extends State<StepsInfoScreen> {
                           Color.fromARGB(255, 255, 255, 255).withOpacity(0.9),
                       borderRadius: BorderRadius.all(Radius.circular(20)),
                     ),
-                    child: const Column(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 5, top: 5),
+                          child: Text(
+                            "Second Step",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: Color.fromARGB(255, 0, 0, 0)),
+                          ),
+                        ),
+                        Divider(),
                         Text(
                           "Payment for Initial Deposit",
                           style: TextStyle(

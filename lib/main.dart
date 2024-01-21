@@ -104,6 +104,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(primaryColor: const Color.fromARGB(255, 176, 39, 39)),
       title: 'Agro+',
       navigatorKey: navigatorKey,
       routes: routes,

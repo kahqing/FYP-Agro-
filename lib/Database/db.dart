@@ -265,7 +265,7 @@ class Database {
       'name': name,
       'dob': dob,
       "gender": gender,
-      'icAddress1': address,
+      'newAddress': address,
     };
 
     try {

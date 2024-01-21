@@ -1,4 +1,5 @@
 import 'package:agro_plus_app/Banking%20Part/Saving%20Goals/Bottom%20Navigation%20Bar/bottom_navi.dart';
+import 'package:agro_plus_app/Banking%20Part/Saving%20Goals/Saving%20Homepage/success_withdraw.dart';
 import 'package:agro_plus_app/Banking%20Part/messages.dart';
 import 'package:agro_plus_app/Database/db.dart';
 import 'package:flutter/material.dart';
@@ -56,6 +57,7 @@ class _WithdrawPocketScreenState extends State<WithdrawPocketScreen> {
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 25),
+                textAlign: TextAlign.center,
               ),
             ),
           ),
@@ -150,8 +152,12 @@ class _WithdrawPocketScreenState extends State<WithdrawPocketScreen> {
 
                                           if (_formKey.currentState!
                                               .validate()) {
-                                            if (double.parse(tabungAmount) >=
-                                                0) {
+                                            if (double.parse(amountController
+                                                        .text) <=
+                                                    double.parse(
+                                                        tabungAmount) &&
+                                                double.parse(tabungAmount) >
+                                                    0) {
                                               db.updateBalance(
                                                   widget.id,
                                                   double.parse(
@@ -164,10 +170,13 @@ class _WithdrawPocketScreenState extends State<WithdrawPocketScreen> {
                                                       amountController.text),
                                                   true);
 
-                                              msg.showSuccessMessage(
-                                                  "Successfully Withdrawn!");
-
-                                              Navigator.of(context).pop();
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      SuccessWithdrawScreen(),
+                                                ),
+                                              );
                                             } else {
                                               msg.showUnsuccessMessage(
                                                   "Insufficient Pocket!");
@@ -177,7 +186,7 @@ class _WithdrawPocketScreenState extends State<WithdrawPocketScreen> {
                                           }
                                         },
                                         child: const Text(
-                                          "Pay",
+                                          "Withdraw",
                                           style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 18),

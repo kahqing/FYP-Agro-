@@ -6,6 +6,8 @@ import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%
 import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/info_open_acc.dart';
 import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/select_branch.dart';
 import 'package:agro_plus_app/Banking%20Part/Saving%20Goals/Bottom%20Navigation%20Bar/bottom_navi.dart';
+import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/chart.dart';
+import 'package:agro_plus_app/Banking%20Part/Saving%20Goals/Saving%20Homepage/success_withdraw.dart';
 import 'package:agro_plus_app/Database/db.dart';
 import 'package:agro_plus_app/EC%20Part/screens/notification/winner_notification_screen.dart';
 import 'package:agro_plus_app/EC%20Part/screens/ec_main_screen/ec_main_screen.dart';
@@ -265,11 +267,11 @@ class _HomepageScreenState extends State<HomepageScreen> {
   Widget buildUIBasedOnStatus(String status, String id) {
     if (status == 'Not active') {
       return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 50, vertical: 70),
-        padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.only(top: 100),
+        padding: const EdgeInsets.all(15),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 160, 24, 14)),
+              backgroundColor: Color.fromARGB(255, 255, 255, 255)),
           onPressed: () {
             Navigator.push(
                 context,
@@ -278,7 +280,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
           },
           child: const Text(
             "Create your own Agrobank account",
-            style: TextStyle(color: Colors.white, fontSize: 15),
+            style: TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontSize: 15),
             textAlign: TextAlign.center,
           ),
         ),
@@ -368,7 +370,10 @@ class _HomepageScreenState extends State<HomepageScreen> {
           margin: const EdgeInsets.symmetric(horizontal: 50, vertical: 70),
           padding: const EdgeInsets.all(10),
           child: Text(
-              "Please register your own Agrobank account for unlocking all the features."));
+            "Please register your own Agrobank account for unlocking all the features.",
+            style: TextStyle(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ));
     } else if (status == 'Active') {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -391,7 +396,8 @@ class _HomepageScreenState extends State<HomepageScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => CongratulationPage()));
+                                  builder: (context) =>
+                                      SuccessWithdrawScreen()));
                         },
                         child:
                             // Container(
@@ -430,13 +436,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
                       child: InkWell(
                         splashColor: const Color.fromARGB(255, 171, 171, 171)
                             .withAlpha(20),
-                        onTap: () {
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (context) =>
-                          //             EKYCFormScreen()));
-                        },
+                        onTap: () {},
                         child:
                             //  Container(
                             //     padding: const EdgeInsets.all(20),

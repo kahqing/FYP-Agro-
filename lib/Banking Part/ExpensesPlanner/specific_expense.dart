@@ -27,6 +27,15 @@ class _SpecificExpenseScreenState extends State<SpecificExpenseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            gradient: LinearGradient(
+                begin: Alignment.bottomLeft,
+                end: Alignment.topRight,
+                colors: [
+                  Color.fromARGB(255, 168, 255, 232),
+                  Color.fromARGB(255, 255, 247, 195)
+                ])),
         width: double.infinity,
         height: MediaQuery.of(context).size.height,
         child: SingleChildScrollView(
@@ -52,6 +61,7 @@ class _SpecificExpenseScreenState extends State<SpecificExpenseScreen> {
                           children: [
                             Column(
                               children: [
+                                SizedBox(height: 20),
                                 Text(
                                   widget.title,
                                   style: TextStyle(
@@ -80,7 +90,11 @@ class _SpecificExpenseScreenState extends State<SpecificExpenseScreen> {
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
-                                color: const Color.fromARGB(255, 255, 248, 225),
+                                color: Color.fromARGB(255, 255, 227, 187),
+                                border: Border.all(
+                                  color: Colors.black,
+                                  width: 1.5,
+                                ),
                               ),
                               child: Text("RM${expensesData['amount']}",
                                   style: TextStyle(fontSize: 18)),
@@ -98,7 +112,11 @@ class _SpecificExpenseScreenState extends State<SpecificExpenseScreen> {
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
-                                color: const Color.fromARGB(255, 255, 248, 225),
+                                color: Color.fromARGB(255, 255, 227, 187),
+                                border: Border.all(
+                                  color: Colors.black,
+                                  width: 1.5,
+                                ),
                               ),
                               child: Text(expensesData['date'],
                                   style: TextStyle(fontSize: 18)),
@@ -116,7 +134,11 @@ class _SpecificExpenseScreenState extends State<SpecificExpenseScreen> {
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
-                                color: const Color.fromARGB(255, 255, 248, 225),
+                                color: Color.fromARGB(255, 255, 227, 187),
+                                border: Border.all(
+                                  color: Colors.black,
+                                  width: 1.5,
+                                ),
                               ),
                               child: Text(expensesData['description'],
                                   style: TextStyle(fontSize: 18)),
@@ -173,6 +195,7 @@ class _SpecificExpenseScreenState extends State<SpecificExpenseScreen> {
                                                         widget.amount);
                                                     msg.showSuccessMessage(
                                                         "Deleted Successfully");
+
                                                     Navigator.of(context).pop();
                                                   },
                                                   child: const Text(

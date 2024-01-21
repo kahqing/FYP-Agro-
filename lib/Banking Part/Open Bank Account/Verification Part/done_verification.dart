@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:agro_plus_app/Banking%20Part/Open%20Bank%20Account/Verification%20Part/info_steps.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ class _SuccessVerifyScreenState extends State<SuccessVerifyScreen> {
   int countdown = 3; // Initial countdown value
   late Timer timer;
   late ConfettiController _controller;
+  AudioPlayer player = AudioPlayer();
 
   @override
   void initState() {
@@ -25,6 +27,7 @@ class _SuccessVerifyScreenState extends State<SuccessVerifyScreen> {
     startCountdown();
     _controller = ConfettiController(duration: const Duration(seconds: 5));
     _controller.play();
+    player.play(AssetSource('congratSound.mp3'));
   }
 
   void startCountdown() {

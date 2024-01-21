@@ -23,6 +23,9 @@ class _GoalsListBasedCategoryScreenState
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late Future<List<Map<String, dynamic>>> completedGoals;
+  late Future<List<Map<String, dynamic>>> inProgressGoals;
+  late List<Map<String, dynamic>> currentInProgressGoals = [];
+  late List<Map<String, dynamic>> currentCompletedGoals = [];
   Database db = Database();
   DateTime dateNow = DateTime.now();
 
@@ -100,6 +103,21 @@ class _GoalsListBasedCategoryScreenState
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     completedGoals = db.getCompletedGoalList(widget.id, widget.category);
+    inProgressGoals = db.getCategoryGoalList(widget.id, widget.category);
+  }
+
+  Future<void> refreshData() async {
+    List<Map<String, dynamic>> inProgressData =
+        await db.getCategoryGoalList(widget.id, widget.category);
+    List<Map<String, dynamic>> completedData =
+        await db.getCompletedGoalList(widget.id, widget.category);
+
+    setState(() {
+      inProgressGoals = Future.value(inProgressData);
+      completedGoals = Future.value(completedData);
+      currentInProgressGoals = inProgressData;
+      currentCompletedGoals = completedData;
+    });
   }
 
   @override
@@ -129,7 +147,7 @@ class _GoalsListBasedCategoryScreenState
           controller: _tabController,
           children: [
             FutureBuilder<List<Map<String, dynamic>>>(
-                future: db.getCategoryGoalList(widget.id, widget.category),
+                future: inProgressGoals,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -158,7 +176,7 @@ class _GoalsListBasedCategoryScreenState
                                       category: goalData['category'],
                                       title: goalData['title']),
                                 ),
-                              );
+                              ).then((value) => refreshData());
                             },
                             child: Container(
                               margin: const EdgeInsets.all(20),
@@ -198,7 +216,7 @@ class _GoalsListBasedCategoryScreenState
                                             Text(
                                                 'Days Remaining: ${daysBetween(dateNow, DateTime.parse(goalData['endDate']))}'),
                                             Text(
-                                                'RM${goalData['currentAmount']} / RM${goalData['target']}'),
+                                                'RM${goalData['currentAmount'].toStringAsFixed(2)} / RM${goalData['target']}'),
                                             Padding(
                                               padding:
                                                   const EdgeInsets.symmetric(
@@ -212,7 +230,7 @@ class _GoalsListBasedCategoryScreenState
                                                     double.parse(
                                                         goalData['target'])),
                                                 center: Text(
-                                                  '${percentBar(goalData['currentAmount'].toDouble(), double.parse(goalData['target'])) * 100}%',
+                                                  '${(percentBar(goalData['currentAmount'].toDouble(), double.parse(goalData['target'])) * 100).toStringAsFixed(2)}%',
                                                   style:
                                                       TextStyle(fontSize: 10.0),
                                                 ),
@@ -274,7 +292,7 @@ class _GoalsListBasedCategoryScreenState
                                       category: goalData['category'],
                                       title: goalData['title']),
                                 ),
-                              );
+                              ).then((value) => refreshData());
                             },
                             child: Container(
                               margin: const EdgeInsets.all(20),
@@ -314,7 +332,7 @@ class _GoalsListBasedCategoryScreenState
                                             Text(
                                                 'Days Remaining: ${daysBetween(dateNow, DateTime.parse(goalData['endDate']))}'),
                                             Text(
-                                                'RM${goalData['currentAmount']} / RM${goalData['target']}'),
+                                                'RM${goalData['currentAmount'].toStringAsFixed(2)} / RM${goalData['target']}'),
                                             Padding(
                                               padding:
                                                   const EdgeInsets.symmetric(
@@ -328,7 +346,7 @@ class _GoalsListBasedCategoryScreenState
                                                     double.parse(
                                                         goalData['target'])),
                                                 center: Text(
-                                                  '${percentBar(goalData['currentAmount'].toDouble(), double.parse(goalData['target'])) * 100}%',
+                                                  '${(percentBar(goalData['currentAmount'].toDouble(), double.parse(goalData['target'])) * 100).toStringAsFixed(2)}%',
                                                   style:
                                                       TextStyle(fontSize: 10.0),
                                                 ),

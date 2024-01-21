@@ -1,3 +1,5 @@
+import 'package:agro_plus_app/Banking%20Part/Saving%20Goals/Bottom%20Navigation%20Bar/bottom_navi.dart';
+
 import 'package:agro_plus_app/EC%20Part/screens/auction/auction_history.dart';
 import 'package:agro_plus_app/EC%20Part/screens/ec_main_screen/ec_main_screen.dart';
 import 'package:agro_plus_app/EC%20Part/screens/notification/non_winner_notification.dart';
@@ -64,5 +66,5 @@ final Map<String, WidgetBuilder> routes = {
   ProductUploadScreen.routeName: (context) {
     final sellerId = ModalRoute.of(context)!.settings.arguments as String;
     return ProductUploadScreen(sellerId: sellerId);
-  }
+  },
 };

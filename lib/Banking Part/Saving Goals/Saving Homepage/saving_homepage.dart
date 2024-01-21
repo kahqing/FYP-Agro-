@@ -1,6 +1,7 @@
 import 'package:agro_plus_app/Banking%20Part/Saving%20Goals/Goal%20Details/goal_details.dart';
 import 'package:agro_plus_app/Banking%20Part/Saving%20Goals/Saving%20Homepage/withdraw_pocket.dart';
 import 'package:agro_plus_app/Database/db.dart';
+import 'package:agro_plus_app/General%20Part/home_page.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -118,15 +119,30 @@ class _SavingHomepageScreenState extends State<SavingHomepageScreen> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         iconTheme: const IconThemeData(
-          color: Color.fromARGB(255, 255, 255, 255), //change your color here
+          color: Color.fromARGB(255, 255, 255, 255), // Change your color here
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text("Tabung",
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold)),
+        title: const Text(
+          "Savings Goal",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            // This will pop the current screen
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomepageScreen(matric: widget.id),
+                ),
+                (route) => false);
+          },
+        ),
       ),
       body: Container(
         height: MediaQuery.of(context).size.height,
@@ -159,7 +175,7 @@ class _SavingHomepageScreenState extends State<SavingHomepageScreen> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return CircularProgressIndicator(
+                          return const CircularProgressIndicator(
                             backgroundColor: Color.fromARGB(255, 127, 18, 18),
                           );
                         } else if (snapshot.hasError) {
@@ -269,79 +285,83 @@ class _SavingHomepageScreenState extends State<SavingHomepageScreen> {
                                           fontWeight: FontWeight.bold),
                                     ),
                                   ),
-                                  subtitle: Row(
-                                    // gap between lines
+                                  subtitle: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      // gap between lines
 
-                                    children: [
-                                      imageUrl != null
-                                          ? ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                              child: Image.network(
-                                                imageUrl,
-                                                width:
-                                                    100, // Adjust the width as needed
-                                                height:
-                                                    100, // Adjust the height as needed
-                                                fit: BoxFit.cover,
-                                              ),
-                                            )
-                                          : Container(), // Handle the case where imageUrl is null
-
-                                      // Display other goal information
-                                      Container(
-                                        margin: const EdgeInsets.only(left: 10),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              goalData['title'],
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 17),
-                                            ),
-                                            Text(
-                                                'Days Remaining: ${daysBetween(dateNow, DateTime.parse(goalData['endDate']))}'),
-                                            Text(
-                                                'RM${goalData['currentAmount']} / RM${goalData['target']}'),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 10.0),
-                                              child: LinearPercentIndicator(
-                                                width: 150,
-                                                lineHeight: 15.0,
-                                                percent: percentBar(
-                                                    goalData['currentAmount']
-                                                        .toDouble(),
-                                                    double.parse(
-                                                        goalData['target'])),
-                                                center: Text(
-                                                  '${percentBar(goalData['currentAmount'].toDouble(), double.parse(goalData['target'])) * 100}%',
-                                                  style:
-                                                      TextStyle(fontSize: 10.0),
+                                      children: [
+                                        imageUrl != null
+                                            ? ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(8.0),
+                                                child: Image.network(
+                                                  imageUrl,
+                                                  width:
+                                                      100, // Adjust the width as needed
+                                                  height:
+                                                      100, // Adjust the height as needed
+                                                  fit: BoxFit.cover,
                                                 ),
-                                                // trailing: const Icon(
-                                                //   Icons
-                                                //       .celebration_outlined,
-                                                //   size: 18,
-                                                // ),
-                                                animation: true,
-                                                animationDuration: 500,
-                                                backgroundColor:
-                                                    const Color.fromARGB(
-                                                        255, 218, 218, 218),
-                                                progressColor: Color.fromARGB(
-                                                    255, 236, 130, 255),
-                                                barRadius:
-                                                    const Radius.circular(20),
+                                              )
+                                            : Container(), // Handle the case where imageUrl is null
+
+                                        // Display other goal information
+                                        Container(
+                                          margin:
+                                              const EdgeInsets.only(left: 10),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                goalData['title'],
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 17),
                                               ),
-                                            ),
-                                          ],
+                                              Text(
+                                                  'Days Remaining: ${daysBetween(dateNow, DateTime.parse(goalData['endDate']))}'),
+                                              Text(
+                                                  'RM${goalData['currentAmount'].toStringAsFixed(2)} / RM${goalData['target']}'),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 10.0),
+                                                child: LinearPercentIndicator(
+                                                  width: 150,
+                                                  lineHeight: 15.0,
+                                                  percent: percentBar(
+                                                      goalData['currentAmount']
+                                                          .toDouble(),
+                                                      double.parse(
+                                                          goalData['target'])),
+                                                  center: Text(
+                                                    '${(percentBar(goalData['currentAmount'].toDouble(), double.parse(goalData['target'])) * 100).toStringAsFixed(2)}%',
+                                                    style: TextStyle(
+                                                        fontSize: 10.0),
+                                                  ),
+                                                  // trailing: const Icon(
+                                                  //   Icons
+                                                  //       .celebration_outlined,
+                                                  //   size: 18,
+                                                  // ),
+                                                  animation: true,
+                                                  animationDuration: 500,
+                                                  backgroundColor:
+                                                      const Color.fromARGB(
+                                                          255, 218, 218, 218),
+                                                  progressColor: Color.fromARGB(
+                                                      255, 236, 130, 255),
+                                                  barRadius:
+                                                      const Radius.circular(20),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

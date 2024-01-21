@@ -1,3 +1,4 @@
+import 'package:agro_plus_app/Banking%20Part/messages.dart';
 import 'package:agro_plus_app/General%20Part/sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -21,6 +22,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController matricController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String password = "";
+  StatusMessage msg = StatusMessage();
 
   Future<void> userRegister(
       username, phone, password, email, address, matric) async {
@@ -49,6 +51,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       "ic": "",
       "balance": 0,
       "fcmToken": fcmToken,
+      "tabungAmount": "0",
     });
     //get FCM token for the device
   }
@@ -124,11 +127,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             return null;
                           }
                         },
-                        // onChanged: (value) {
-                        //   setState(() {
-                        //     username = value;
-                        //   });
-                        // },
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0)),
                       ),
                     ),
                     Container(
@@ -157,11 +157,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             return null;
                           }
                         },
-                        // onChanged: (value) {
-                        //   setState(() {
-                        //     username = value;
-                        //   });
-                        // },
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0)),
                       ),
                     ),
                     Container(
@@ -183,20 +180,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 borderSide: const BorderSide(
                                     width: 0, style: BorderStyle.none)),
                             labelText: "Email"),
-                        // validator: (value) {
-                        //   if (value!.isEmpty) {
-                        //     return "Please enter your email!";
-                        //   } else if (!value.contains('@')) {
-                        //     return "Please enter valid email";
-                        //   } else {
-                        //     return null;
-                        //   }
-                        // },
-                        // onChanged: (value) {
-                        //   setState(() {
-                        //     email = value;
-                        //   });
-                        // },
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return "Please enter your email!";
+                          } else if (!value.contains('@')) {
+                            return "Please enter valid email";
+                          } else {
+                            return null;
+                          }
+                        },
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0)),
                       ),
                     ),
                     Container(
@@ -206,7 +200,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         controller: phoneController,
                         decoration: InputDecoration(
                             prefixIcon: Icon(
-                              Icons.email_outlined,
+                              Icons.phone,
                               color: Colors.white.withOpacity(0.7),
                             ),
                             labelStyle:
@@ -218,21 +212,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 borderSide: const BorderSide(
                                     width: 0, style: BorderStyle.none)),
                             labelText: "Contact"),
-                        // validator: (value) {
-                        //   if (value!.isEmpty) {
-                        //     return "Please enter your phone number!";
-                        //   } else if (num.tryParse(value) != null &&
-                        //       (value.length != 11 || value.length != 10)) {
-                        //     return "Please enter a valid phone number format!";
-                        //   } else {
-                        //     return null;
-                        //   }
-                        // },
-                        // onChanged: (value) {
-                        //   setState(() {
-                        //     phone = value;
-                        //   });
-                        // },
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return "Please enter your phone number!";
+                          } else if (num.tryParse(value) != null &&
+                              (value.length != 11 || value.length != 10)) {
+                            return "Please enter a valid phone number format!";
+                          } else {
+                            return null;
+                          }
+                        },
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0)),
                       ),
                     ),
                     Container(
@@ -242,7 +233,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         controller: addressController,
                         decoration: InputDecoration(
                             prefixIcon: Icon(
-                              Icons.person_2_outlined,
+                              Icons.house_outlined,
                               color: Colors.white.withOpacity(0.7),
                             ),
                             labelStyle:
@@ -261,11 +252,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             return null;
                           }
                         },
-                        // onChanged: (value) {
-                        //   setState(() {
-                        //     username = value;
-                        //   });
-                        // },
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0)),
                       ),
                     ),
                     Container(
@@ -288,22 +276,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 borderSide: const BorderSide(
                                     width: 0, style: BorderStyle.none)),
                             labelText: "Password"),
-                        // validator: (value) {
-                        //   RegExp regex = RegExp(
-                        //       r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
-                        //   if (value!.isEmpty) {
-                        //     return "Please enter your password!";
-                        //   } else if (!regex.hasMatch(value)) {
-                        //     return "The password must have at least 8 characters in length, one uppercase, one lowercase, one digit, and one special character.";
-                        //   } else {
-                        //     return null;
-                        //   }
-                        // },
-                        onChanged: (value) {
-                          setState(() {
-                            password = value;
-                          });
+                        validator: (value) {
+                          RegExp regex = RegExp(
+                              r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
+                          if (value!.isEmpty) {
+                            return "Please enter your password!";
+                          } else if (!regex.hasMatch(value)) {
+                            return "The password must have at least 8 characters in length, one uppercase, one lowercase, one digit, and one special character.";
+                          } else {
+                            return null;
+                          }
                         },
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0)),
                       ),
                     ),
                     Container(
@@ -335,11 +320,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             return null;
                           }
                         },
-                        // onChanged: (value) {
-                        //   setState(() {
-                        //     confirm = value;
-                        //   });
-                        // },
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0)),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -361,29 +343,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       matricController.text)
                                   .then((value) {
                                 clearText();
-                                final snackBar = SnackBar(
-                                  content: const Text(
-                                    "User Registered.",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                  action: SnackBarAction(
-                                    label: "Log In",
-                                    textColor: Colors.black,
-                                    onPressed: () {
-                                      Navigator.pushNamed(
-                                          context, SignInScreen.routeName);
-                                    },
-                                  ),
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(15),
-                                        topRight: Radius.circular(15)),
-                                  ),
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 102, 235, 122),
-                                );
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(snackBar);
+                                msg.showSuccessMessage("Sign Up Successfully.");
+                                Navigator.pushNamed(
+                                    context, SignInScreen.routeName);
                               });
                             } else {
                               const snackbar = SnackBar(
@@ -397,7 +359,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       topRight: Radius.circular(15)),
                                 ),
                                 backgroundColor:
-                                    Color.fromARGB(255, 102, 235, 122),
+                                    Color.fromARGB(255, 255, 113, 113),
                               );
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(snackbar);

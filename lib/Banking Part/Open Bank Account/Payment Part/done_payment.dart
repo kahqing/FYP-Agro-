@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:agro_plus_app/General%20Part/home_page.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ class _DonePaymentScreenState extends State<DonePaymentScreen> {
   int countdown = 3; // Initial countdown value
   late Timer timer;
   late ConfettiController _controller;
+  AudioPlayer player = AudioPlayer();
 
   @override
   void initState() {
@@ -24,6 +26,7 @@ class _DonePaymentScreenState extends State<DonePaymentScreen> {
     startCountdown();
     _controller = ConfettiController(duration: const Duration(seconds: 5));
     _controller.play();
+    player.play(AssetSource('congratSound.mp3'));
   }
 
   void startCountdown() {

@@ -1,8 +1,12 @@
+import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/nextpage.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 
 class CongratulationPage extends StatefulWidget {
+  final String matric;
+
+  CongratulationPage({required this.matric});
   @override
   _CongratulationPageState createState() => _CongratulationPageState();
 }
@@ -99,7 +103,15 @@ class _CongratulationPageState extends State<CongratulationPage> {
                       ),
                     ),
                     InkWell(
-                      onTap: () async {},
+                      onTap: () async {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => AddExpenses(
+                                matric: widget
+                                    .matric), // Replace NextPage with the actual class you want to navigate to
+                          ),
+                        );
+                      },
                       child: Container(
                         child: Image.asset(
                           'assets/images/addExpenses.png',

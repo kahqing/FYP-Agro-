@@ -498,6 +498,40 @@ class Database {
     }
   }
 
+  Future<double> getTotalExpensesByCategory(String id, String category) async {
+    try {
+      final CollectionReference collection = FirebaseFirestore.instance
+          .collection("user")
+          .doc(id)
+          .collection(category);
+
+      QuerySnapshot querySnapshot = await collection.get();
+
+      List<Map<String, dynamic>> expensesList = [];
+
+      querySnapshot.docs.forEach((DocumentSnapshot document) {
+        if (document.exists) {
+          Map<String, dynamic>? data = document.data() as Map<String, dynamic>?;
+
+          if (data != null) {
+            expensesList.add(data);
+          }
+        }
+      });
+
+      double totalAmount = expensesList.fold(0.0, (previous, current) {
+        String amountString = current['amount']?.toString() ?? '0.0';
+        double amount = double.tryParse(amountString) ?? 0.0;
+        return previous + amount;
+      });
+
+      return totalAmount;
+    } catch (e) {
+      print("Error retrieving expenses from Firestore: $e");
+      return 0.0; // Return 0.0 in case of an error
+    }
+  }
+
   Future<void> deleteExpenses(
       String id, String category, String title, amount) async {
     try {

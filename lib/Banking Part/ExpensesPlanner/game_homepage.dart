@@ -2,6 +2,7 @@ import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/Components/assets.d
 import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/Components/background.dart';
 import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/Components/buttons.dart';
 import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/category_list.dart';
+import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/chart.dart';
 import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/nextpage.dart';
 import 'package:agro_plus_app/General%20Part/home_page.dart';
 import 'package:event_bus/event_bus.dart';
@@ -22,6 +23,7 @@ class ExpensesGame extends FlameGame {
   OthersButton others = OthersButton();
   DialogButton dialogButton = DialogButton();
   BackButton back = BackButton();
+  ChartButton chart = ChartButton();
 
   final Vector2 buttonSize = Vector2(50.0, 50.0);
 
@@ -43,6 +45,12 @@ class ExpensesGame extends FlameGame {
       ..size = buttonSize
       ..position = Vector2(10, 10);
     add(back);
+
+    chart
+      ..sprite = await loadSprite(Assets.chartButton)
+      ..size = buttonSize
+      ..position = Vector2(size[0] - buttonSize[0] - 10, 10);
+    add(chart);
 
     travel
       ..sprite = await loadSprite(Assets.travel)
@@ -98,6 +106,8 @@ class NavigateToNextPageEvent {}
 
 class NavigateToHomepageEvent {}
 
+class NavigateToChartEvent {}
+
 class DialogButton extends SpriteComponent
     with TapCallbacks, HasGameRef<ExpensesGame> {
   bool _isPressed = false;
@@ -142,6 +152,28 @@ class BackButton extends SpriteComponent
   }
 }
 
+class ChartButton extends SpriteComponent
+    with TapCallbacks, HasGameRef<ExpensesGame> {
+  bool _isPressed = false;
+
+  @override
+  void onTapDown(TapDownEvent event) {
+    try {
+      print('Button pressed!');
+
+      if (!_isPressed) {
+        _isPressed = true;
+        // Navigate to the new page
+        gameRef!.eventBus.fire(NavigateToChartEvent());
+      }
+    } catch (error) {
+      print(error);
+    } finally {
+      _isPressed = false; // Reset the _isPressed state
+    }
+  }
+}
+
 class GameScreen extends StatelessWidget {
   final String matric;
   final ExpensesGame expensesGame;
@@ -174,6 +206,15 @@ class GameScreen extends StatelessWidget {
               matric: matric,
               category: event
                   .category), // Replace NextPage with the actual class you want to navigate to
+        ),
+      );
+    });
+
+    expensesGame.eventBus.on<NavigateToChartEvent>().listen((event) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => ChartScreen(
+              id: matric), // Replace NextPage with the actual class you want to navigate to
         ),
       );
     });

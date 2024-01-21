@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:agro_plus_app/Banking%20Part/Saving%20Goals/Goal%20Details/goal_details.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -26,13 +27,15 @@ class _CongratCompletedGoalScreenState
   int countdown = 5; // Initial countdown value
   late Timer timer;
   late ConfettiController _controller;
+  AudioPlayer player = AudioPlayer();
 
   @override
   void initState() {
     super.initState();
     startCountdown();
-    _controller = ConfettiController(duration: const Duration(seconds: 5));
+    _controller = ConfettiController(duration: const Duration(seconds: 3));
     _controller.play();
+    player.play(AssetSource('congratSound.mp3'));
   }
 
   void startCountdown() {
@@ -44,15 +47,15 @@ class _CongratCompletedGoalScreenState
           // When the countdown reaches 0, navigate to the next screen
           timer.cancel();
 
-          // Navigator.pushReplacement(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => GoalDetailsScreen(
-          //         id: widget.id,
-          //         category: widget.category,
-          //         title: widget.title),
-          //   ),
-          // );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GoalDetailsScreen(
+                  id: widget.id,
+                  category: widget.category,
+                  title: widget.title),
+            ),
+          );
         }
       });
     });
@@ -125,15 +128,7 @@ class _CongratCompletedGoalScreenState
                       onPressed: () {
                         timer
                             .cancel(); // Cancel the timer when the button is pressed
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => GoalDetailsScreen(
-                                id: widget.id,
-                                category: widget.category,
-                                title: widget.title),
-                          ),
-                        );
+                        Navigator.of(context).pop();
                       },
                       child: Text(
                         "NEXT",

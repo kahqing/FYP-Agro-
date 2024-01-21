@@ -14,4 +14,5 @@ class Assets {
   static const backButton = 'back.png';
   static const saveButton = 'save.png';
   static const cannotSave = 'cannotsave.png';
+  static const chartButton = 'next.png';
 }

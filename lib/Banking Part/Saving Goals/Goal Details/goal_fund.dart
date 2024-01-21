@@ -1,11 +1,7 @@
-import 'package:agro_plus_app/Banking%20Part/Saving%20Goals/Bottom%20Navigation%20Bar/bottom_navi.dart';
 import 'package:agro_plus_app/Banking%20Part/Saving%20Goals/Goal%20Details/complete_goal.dart';
-import 'package:agro_plus_app/Banking%20Part/Saving%20Goals/Goal%20Details/goal_details.dart';
 import 'package:agro_plus_app/Banking%20Part/messages.dart';
 import 'package:agro_plus_app/Database/db.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:google_ml_kit/google_ml_kit.dart';
 
 class GoalFundScreen extends StatefulWidget {
   final String id;
@@ -94,7 +90,7 @@ class _GoalFundScreenState extends State<GoalFundScreen> {
                                     return Text('No data available');
                                   } else {
                                     return Text(
-                                      "Remaining Amount: RM${(double.parse(goalData['target']) - goalData['currentAmount']).toStringAsFixed(2)}",
+                                      "Amount Need To Pay: RM${(double.parse(goalData['target']) - goalData['currentAmount']).toStringAsFixed(2)}",
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 18),
@@ -266,6 +262,7 @@ class _GoalFundScreenState extends State<GoalFundScreen> {
 
                                                 msg.showSuccessMessage(
                                                     "Successfully Payment!");
+
                                                 Navigator.of(context).pop();
                                               }
                                             } else {

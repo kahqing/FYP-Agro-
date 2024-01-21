@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -21,6 +22,8 @@ class CaptureICScreen extends StatefulWidget {
 class _CaptureICScreenState extends State<CaptureICScreen> {
   Database db = Database();
   StatusMessage msg = StatusMessage();
+  bool isLoading = false;
+  bool isCapturing = false;
   String scannedText = "";
   String scannedName = "";
   String scannedICNumFront = "";
@@ -50,26 +53,6 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
 
   //   return true;
   // }
-
-  Future<bool> compareAddress(
-      String userEnteredAddress, String scannedText) async {
-    // Convert both addresses to lowercase for case-insensitive comparison
-    String userAddressLower = userEnteredAddress.toLowerCase();
-    String scannedAddressLower = scannedText.toLowerCase();
-
-    // Split the addresses into words
-    List<String> userWords = userAddressLower.split(RegExp(r'\s+'));
-    List<String> scannedWords = scannedAddressLower.split(RegExp(r'\s+'));
-
-    // Check if all words in userEnteredAddress are present in scannedText
-    for (String word in userWords) {
-      if (!scannedWords.contains(word)) {
-        return false;
-      }
-    }
-
-    return true;
-  }
 
   Future<String> uploadImageToStorage(File imageFile, id) async {
     try {
@@ -105,215 +88,287 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
   Widget build(BuildContext context) {
     String id = widget.id;
     return Scaffold(
-        body: Container(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
-      decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: [
-            Color.fromARGB(255, 229, 48, 48),
-            Color.fromARGB(255, 127, 18, 18)
-          ])),
-      child: SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                margin: const EdgeInsets.all(15),
-                child: const Text(
-                  "Please capture the front of MyKad.",
-                  style: TextStyle(
-                      color: Color.fromARGB(255, 255, 255, 255),
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              if (imageFile == null)
-                Container(
-                  width: 300,
-                  height: 300,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: const Color.fromARGB(255, 251, 251, 251),
+        body: Stack(
+      children: [
+        Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [
+                Color.fromARGB(255, 229, 48, 48),
+                Color.fromARGB(255, 127, 18, 18)
+              ])),
+          child: SingleChildScrollView(
+            child: Container(
+              margin: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.all(15),
+                    child: const Text(
+                      "Please capture the front of MyKad.",
+                      style: TextStyle(
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
-              if (imageFile != null) Image.file(File(imageFile!.path)),
-              Visibility(
-                visible: imageFile == null,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                  if (imageFile == null)
                     Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 20),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 255, 255, 255),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0)),
-                          ),
-                          onPressed: () {
-                            getImage(ImageSource.camera);
-                          },
-                          child: Container(
+                      width: 350,
+                      height: 350,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Color.fromARGB(255, 210, 210, 210),
+                      ),
+                      child: const Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.photo_size_select_actual_outlined,
+                                color: Color.fromARGB(255, 158, 158, 158),
+                                size: 50,
+                              ),
+                              Text(
+                                "No Image",
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 158, 158, 158),
+                                    fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          )),
+                    ),
+                  if (imageFile != null)
+                    ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Image.file(
+                          File(imageFile!.path),
+                          width: 350,
+                          height: 350,
+                          fit: BoxFit.cover,
+                        )),
+                  Visibility(
+                    visible: imageFile == null,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
                             margin: const EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 5),
-                            child: const Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.camera_alt,
-                                  size: 30,
-                                  color: Color.fromARGB(255, 0, 0, 0),
-                                ),
-                                Text(
-                                  "Camera",
-                                  style: TextStyle(
-                                      fontSize: 13,
-                                      color: Color.fromARGB(255, 0, 0, 0)),
-                                )
-                              ],
-                            ),
-                          ),
-                        )),
-                  ],
-                ),
-              ),
-              Visibility(
-                visible: imageFile != null,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                        width: 100,
-                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                        padding: const EdgeInsets.only(top: 10),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 255, 255, 255),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0)),
-                          ),
-                          onPressed: () {
-                            getImage(ImageSource.camera);
-                          },
-                          child: Container(
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 5),
-                              child: const Text(
-                                "Retake",
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color: Color.fromARGB(255, 0, 0, 0)),
-                              )),
-                        )),
-                    Container(
-                        width: 100,
-                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                        padding: const EdgeInsets.only(top: 10),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 255, 255, 255),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0)),
-                          ),
-                          onPressed: () async {
-                            // to check it is Malaysian IC
-                            if (scannedText
-                                    .toLowerCase()
-                                    .contains("warganegara") ||
-                                scannedText
-                                    .toLowerCase()
-                                    .contains("malaysia") ||
-                                scannedText
-                                    .toLowerCase()
-                                    .contains("kadpengenalan")) {
-                              String addressLast =
-                                  "$scannedposcode ${states.join(", ")}";
-                              imageUrl = await uploadImageToStorage(
-                                  File(imageFile!.path), id);
-
-                              await updateFrontImage(id, username, imageUrl,
-                                  addressLast, scannedICNumFront);
-
-                              msg.showSuccessMessage("Valid IC!");
-
-                              // ignore: use_build_context_synchronously
-                              Navigator.pushReplacement(
-                                  context,
-                                  CupertinoPageRoute(
-                                      builder: (context) =>
-                                          CaptureBackICScreen(id: id)));
-                            } else {
-                              const snackBar = SnackBar(
-                                content: Text(
-                                  "Please capture your Identification Card properly.",
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(15),
-                                      topRight: Radius.circular(15)),
-                                ),
+                                horizontal: 5, vertical: 20),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
                                 backgroundColor:
-                                    Color.fromARGB(255, 245, 179, 255),
-                              );
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
-                            }
-                          },
-                          child: Container(
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 5),
-                              child: const Text(
-                                "Next",
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color: Color.fromARGB(255, 0, 0, 0)),
-                              )),
-                        )),
-                  ],
-                ),
+                                    const Color.fromARGB(255, 255, 255, 255),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0)),
+                              ),
+                              onPressed: () {
+                                getImage(ImageSource.camera);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 5, horizontal: 5),
+                                child: const Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.camera_alt,
+                                      size: 30,
+                                      color: Color.fromARGB(255, 0, 0, 0),
+                                    ),
+                                    Text(
+                                      "Camera",
+                                      style: TextStyle(
+                                          fontSize: 13,
+                                          color: Color.fromARGB(255, 0, 0, 0)),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            )),
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: imageFile != null,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                            width: 100,
+                            margin: const EdgeInsets.symmetric(horizontal: 5),
+                            padding: const EdgeInsets.only(top: 10),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 255, 255, 255),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0)),
+                              ),
+                              onPressed: () {
+                                getImage(ImageSource.camera);
+                              },
+                              child: Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 5),
+                                  child: const Text(
+                                    "Retake",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        color: Color.fromARGB(255, 0, 0, 0)),
+                                  )),
+                            )),
+                        Container(
+                            width: 100,
+                            margin: const EdgeInsets.symmetric(horizontal: 5),
+                            padding: const EdgeInsets.only(top: 10),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 255, 255, 255),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0)),
+                              ),
+                              onPressed: () async {
+                                setState(() {
+                                  isLoading = true; // Set loading state to true
+                                });
+                                try {
+                                  if (scannedText
+                                          .toLowerCase()
+                                          .contains("warganegara") ||
+                                      scannedText
+                                          .toLowerCase()
+                                          .contains("malaysia") ||
+                                      scannedText
+                                          .toLowerCase()
+                                          .contains("kadpengenalan")) {
+                                    String addressLast =
+                                        "$scannedposcode ${states.join(", ")}";
+                                    imageUrl = await uploadImageToStorage(
+                                        File(imageFile!.path), id);
+
+                                    await updateFrontImage(
+                                        id,
+                                        username,
+                                        imageUrl,
+                                        addressLast,
+                                        scannedICNumFront);
+
+                                    msg.showSuccessMessage("Valid IC!");
+
+                                    // ignore: use_build_context_synchronously
+                                    Navigator.pushReplacement(
+                                        context,
+                                        CupertinoPageRoute(
+                                            builder: (context) =>
+                                                CaptureBackICScreen(id: id)));
+                                  } else {
+                                    const snackBar = SnackBar(
+                                      content: Text(
+                                        "Please capture your Identification Card properly.",
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(15),
+                                            topRight: Radius.circular(15)),
+                                      ),
+                                      backgroundColor:
+                                          Color.fromARGB(255, 245, 179, 255),
+                                    );
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(snackBar);
+                                  }
+                                } catch (error) {
+                                  msg.showUnsuccessMessage(
+                                      "Failed to create: $error");
+                                } finally {
+                                  setState(() {
+                                    isLoading =
+                                        false; // Set loading state to false
+                                  });
+                                }
+                              },
+                              child: Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      vertical: 5, horizontal: 5),
+                                  child: const Text(
+                                    "Next",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        color: Color.fromARGB(255, 0, 0, 0)),
+                                  )),
+                            )),
+                      ],
+                    ),
+                  ),
+                  // const SizedBox(
+                  //   height: 20,
+                  // ),
+                  // Column(
+                  //   children: [
+                  //     Container(
+                  //       child: Text(
+                  //         "full text:" +
+                  //             scannedText +
+                  //             "\nic:" +
+                  //             scannedICNumFront +
+                  //             "\nposcode:" +
+                  //             scannedposcode +
+                  //             "\nstate:" +
+                  //             states.join(", ") +
+                  //             "\nusername: $username" +
+                  //             "district: $district",
+                  //         style: const TextStyle(fontSize: 20),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // )
+                ],
               ),
-              // const SizedBox(
-              //   height: 20,
-              // ),
-              // Column(
-              //   children: [
-              //     Container(
-              //       child: Text(
-              //         "full text:" +
-              //             scannedText +
-              //             "\nic:" +
-              //             scannedICNumFront +
-              //             "\nposcode:" +
-              //             scannedposcode +
-              //             "\nstate:" +
-              //             states.join(", ") +
-              //             "\nusername: $username" +
-              //             "district: $district",
-              //         style: const TextStyle(fontSize: 20),
-              //       ),
-              //     ),
-              //   ],
-              // )
-            ],
+            ),
           ),
         ),
-      ),
+        if (isLoading) // Display loading overlay when isLoading is true
+          Container(
+            color: Colors.black.withOpacity(0.5),
+            child: const Center(
+              child: SpinKitFadingCube(
+                size: 50,
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
+            ),
+          ),
+        Visibility(
+          visible: isCapturing,
+          child: Container(
+            color: Colors.black.withOpacity(0.5),
+            child: const Center(
+              child: SpinKitFadingCube(
+                size: 50,
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
+            ),
+          ),
+        ),
+      ],
     ));
   }
 
   void getImage(ImageSource source) async {
     try {
+      setState(() {
+        isCapturing = true; // Set capturing state to true
+      });
+
       final pickedImage = await ImagePicker().pickImage(source: source);
       if (pickedImage != null) {
         imageFile = pickedImage;
@@ -327,6 +382,10 @@ class _CaptureICScreenState extends State<CaptureICScreen> {
       imageFile = null;
 
       setState(() {});
+    } finally {
+      setState(() {
+        isCapturing = false; // Set capturing state to false
+      });
     }
   }
 

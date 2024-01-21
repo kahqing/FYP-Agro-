@@ -1,3 +1,4 @@
+import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/nextpage.dart';
 import 'package:agro_plus_app/Banking%20Part/ExpensesPlanner/specific_expense.dart';
 import 'package:agro_plus_app/Database/db.dart';
 import 'package:flutter/material.dart';
@@ -116,20 +117,47 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
                         },
                       ),
                     ),
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 20),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          child: Image.asset(
-                            'assets/images/back.png',
-                            width: 60, // Adjust the width as needed
-                            height: 60, // Adjust the height as needed
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 20),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              child: Image.asset(
+                                'assets/images/back.png',
+                                width: 60, // Adjust the width as needed
+                                height: 60, // Adjust the height as needed
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 20),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (context) => AddExpenses(
+                                      matric: widget
+                                          .matric), // Replace NextPage with the actual class you want to navigate to
+                                ),
+                              );
+                            },
+                            child: Container(
+                              child: Image.asset(
+                                'assets/images/addExpenses.png',
+                                width: 60, // Adjust the width as needed
+                                height: 60, // Adjust the height as needed
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 )
@@ -150,17 +178,47 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
                             fontSize: 17, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        child: Image.asset(
-                          'assets/images/back.png',
-                          width: 50, // Adjust the width as needed
-                          height: 50, // Adjust the height as needed
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 20),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              child: Image.asset(
+                                'assets/images/back.png',
+                                width: 60, // Adjust the width as needed
+                                height: 60, // Adjust the height as needed
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 20),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (context) => AddExpenses(
+                                      matric: widget
+                                          .matric), // Replace NextPage with the actual class you want to navigate to
+                                ),
+                              );
+                            },
+                            child: Container(
+                              child: Image.asset(
+                                'assets/images/addExpenses.png',
+                                width: 60, // Adjust the width as needed
+                                height: 60, // Adjust the height as needed
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

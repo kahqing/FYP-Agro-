@@ -272,8 +272,9 @@ class _AddExpensesState extends State<AddExpenses> {
 
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                            builder: (context) =>
-                                CongratulationPage(), // Replace NextPage with the actual class you want to navigate to
+                            builder: (context) => CongratulationPage(
+                              matric: widget.matric,
+                            ), // Replace NextPage with the actual class you want to navigate to
                           ),
                         );
                       }
